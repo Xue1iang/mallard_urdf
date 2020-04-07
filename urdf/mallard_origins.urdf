@@ -2,15 +2,19 @@
 <robot name="mallard_origins">
 
   <material name="blue">
-    <color rgba="0 0 0.8 1"/>
+    <color rgba="0.0 0.0 0.8 1.0"/>
   </material>
 
-  <material name="white">
-    <color rgba="1 1 1 1"/>
+  <material name="black">
+    <color rgba="0.0 0.0 0.0 1.0"/>
+  </material>
+
+  <material name="red">
+    <color rgba="0.8 0.0 0.0 1.0"/>
   </material>
 
   <material name="gray">
-    <color rgba="0.7 0.7 0.7 1.0"/>
+    <color rgba="0.8 0.8 0.8 1.0"/>
   </material>
 
   <link name="odom">
@@ -25,7 +29,7 @@
         <geometry> 
           <box size="0.450 0.038 0.038"/>
         </geometry>
-        <material name="white"/>
+        <material name="gray"/>
         <origin rpy="0 0 0" xyz="0 -0.15 0"/> 
       </visual>
       <collision name="r_channel_collision">
@@ -39,7 +43,6 @@
         <geometry> 
           <box size="0.450 0.038 0.038"/>
         </geometry>
-        <!-- <material name="gray"/> -->
         <origin rpy="0 0 0" xyz="0 0.15 0"/> 
       </visual>
       <collision name="l_channel_collision">
@@ -112,7 +115,5 @@
     <child link="lidar"/>
     <origin xyz="0.225 0.0 0.152" rpy="0.0 0.0 0.0"/>
   </joint>
-
-
 
 </robot>
