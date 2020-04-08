@@ -1,0 +1,2 @@
+type: "position_controllers/JointPositionController"
+joint: actuator_to_base_link

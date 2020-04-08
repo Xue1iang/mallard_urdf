@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="model" default="$(find mallard_urdf)/urdf/01-chassis.urdf"/>
+  <arg name="model" default="$(find mallard_urdf)/urdf/02-actuator.urdf"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find mallard_urdf)/rviz/urdf.rviz" />
 
