@@ -1,5 +1,12 @@
 <?xml version="1.0"?>
-<robot name="mallard">
+<robot name="mallard" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Thrusters components & constants -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="tr1" value=".02" />
+  <xacro:property name="tl1" value=".1" />
+  <xacro:property name="tr2" value=".05" />
+  <xacro:property name="tl2" value=".03" />
 
   <material name="blue">
     <color rgba="0.0 0.0 0.8 1.0"/>
@@ -14,7 +21,63 @@
     <color rgba="0.8 0.8 0.8 1.0"/>
   </material>
 
+  <!--  *** MACROS *** -->
+  <!-- Thruster link -->
+  <xacro:macro name="thruster_link" params="name xyz rpy">
+      
+      <joint name="${name}" type="revolute">
+          <parent link="base_link"/>
+          <child link="${name}"/>
+          <origin rpy="${rpy}" xyz="${xyz}"/>
+          <dynamics damping="10.0"/>
+          <axis xyz="0 1 0"/>
+          <limit effort="30" velocity="5.0" lower="-${PI}" upper="${PI}" />
+      </joint>
+      
+      <link name="${name}">      
+          <!-- <buoyancy><compensation>1.0</compensation></buoyancy> -->
+          <visual name="${name}_1">
+              <geometry>
+                  <cylinder length="${tl1}" radius="${tr1}"/>
+              </geometry>
+              <material name="black">
+                  <color rgba="0 0 0 1"/>
+              </material>
+          </visual>  
+          <visual name="${name}_2">
+              <origin xyz="0 0 ${(tl1+tl2)/2}"/>
+              <geometry>
+                  <cylinder length="${tl2}" radius="${tr2}"/>
+              </geometry>
+              <material name="black">
+                  <color rgba="0 0 0 1"/>
+              </material>
+          </visual>  
+          <inertial>
+              <mass  value="0.5"/>
+              <inertia ixx="0.1"
+                       ixy="0.0"
+                       ixz="0.0"
+                       iyy="0.1"
+                       iyz="0.0"
+                       izz="0.1"/>
+          </inertial>  
+      </link> 
 
+      <gazebo reference="${name}">
+          <material>Gazebo/Black</material>
+      </gazebo>
+
+      <buoyancy>
+          <compensation>1.01</compensation>
+          <!-- <origin xyz= "0 0 0"/>
+          <limit radius="0.0"/>
+          <damping xyz="60 100 100" rpy="20 50 50"/> -->
+      </buoyancy>
+  </xacro:macro> 
+
+  <!-- <link name="odom">
+  </link> -->
 
   <link name="base_link">
       <!-- Channels (aluminum connecting elements) -->
@@ -74,13 +137,29 @@
 
       <!-- chassis physics -->
       <inertial>
-        <mass value="5.25"/>
+        <mass value="10.0"/>
         <inertia ixx="0.17" ixy="0.0" ixz="0.0" iyy="0.25" iyz="0.0" izz="0.40"/>
       </inertial>
+
+      <!-- The <limit> tag indicates where the buoyancy force 
+      begins to decrease when approaching the water surface -->
+      <buoyancy>
+          <compensation>1.00</compensation>
+          <origin xyz= "0 0 0"/>
+          <limit radius="0.0"/>
+          <damping xyz="60 100 100" rpy="20 50 50"/>
+      </buoyancy>
+
   </link>
 
+  <!-- <joint name="odom_to_base_link" type="fixed">
+    <origin xyz="0.5 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    <parent link="odom"/>
+    <child link="base_link"/>
+  </joint> -->
 
-  <link name="lidar">
+
+  <!-- <link name="lidar">
     <visual name="lidar_base">
       <geometry>
         <box size="0.06 0.061 0.048"/>
@@ -113,13 +192,56 @@
       <mass value="0.250"/>
       <inertia ixx="0.00020" ixy="0.0" ixz="0.0" iyy="0.00020" iyz="0.0" izz="0.00015"/>
     </inertial>
-  </link>
+  </link> -->
 
-  <joint name="lidar_to_base_link" type="fixed">
+  <!-- <joint name="lidar_to_base_link" type="fixed">
     <parent link="base_link"/>
     <child link="lidar"/>
     <origin xyz="0.225 0.0 0.152" rpy="0.0 0.0 0.0"/>
-  </joint>
+  </joint> -->
+
+  <!-- Make four thrusters -->
+  <xacro:thruster_link name="thr_x_left"  xyz="0  0.2 -0.05" rpy="0 ${-PI/2} 0"/>
+
+  <!-- FreeFloating plugin -->
+  <gazebo>
+    <plugin name="freefloating_gazebo_control" filename="libfreefloating_gazebo_control.so">
+          <switchService>switch</switchService>
+          <updateRate>100</updateRate>
+          <link>base_link</link>
+
+                <!-- THRUST CONTROL -->
+                <!--    these two thrusters are actually orientable, so the map should not be hard-coded 
+                        the thruster name is the name of the corresponding link --> 
+                <!-- <thruster>
+                    <effort>30</effort>
+                    <name>fwd_left_2</name>
+                </thruster> -->
+
+                <!-- <thruster>
+                    <effort>30</effort>
+                    <name>fwd_right</name>
+                </thruster>
+
+                <thruster>
+                    <effort>30</effort>
+                    <name>temp_thruster</name>
+                </thruster>
+
+                <thruster>
+                    <effort>30</effort>
+                    <name>temp_thruster2</name>
+                </thruster> -->
+                
+                <!-- <map> describes where the force or torque is applied
+                with respect to body_link frame. Needs at leats one of them otherwise plugin won't work  --> 
+                <!-- <thruster>
+                    <map>0 1 0 0 0 0</map>
+                    <effort>30</effort>
+                </thruster> -->
+
+      </plugin>
+  </gazebo>
 
 
 </robot>
