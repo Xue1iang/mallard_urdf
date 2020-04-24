@@ -4,24 +4,17 @@
   <material name="blue">
     <color rgba="0.0 0.0 0.8 1.0"/>
   </material>
-
   <material name="black">
     <color rgba="0.0 0.0 0.0 1.0"/>
   </material>
-
   <material name="red">
     <color rgba="0.8 0.0 0.0 1.0"/>
   </material>
-
   <material name="gray">
     <color rgba="0.8 0.8 0.8 1.0"/>
   </material>
 
-  <!-- <link name="odom">
-    <geometry>
-      <box size="0.001 0.001 0.001"/>
-    </geometry>
-  </link> -->
+
 
   <link name="base_link">
       <!-- Channels (aluminum connecting elements) -->
@@ -86,11 +79,6 @@
       </inertial>
   </link>
 
-  <!-- <joint name="odom_to_base_link" type="fixed">
-    <origin xyz="0.15 0.0 0.0" rpy="0.0 0.0 0.0"/>
-    <parent link="odom"/>
-    <child link="base_link"/>
-  </joint> -->
 
   <link name="lidar">
     <visual name="lidar_base">
@@ -125,43 +113,12 @@
       <mass value="0.250"/>
       <inertia ixx="0.00020" ixy="0.0" ixz="0.0" iyy="0.00020" iyz="0.0" izz="0.00015"/>
     </inertial>
-    
   </link>
 
   <joint name="lidar_to_base_link" type="fixed">
     <parent link="base_link"/>
     <child link="lidar"/>
     <origin xyz="0.225 0.0 0.152" rpy="0.0 0.0 0.0"/>
-  </joint>
-
-  <link name="wheel_1">
-     <!-- need physics (colision, inertia) for gazebo to work !!!! -->
-      <visual>
-        <geometry>
-            <cylinder radius="0.2" length="0.1"/>
-        </geometry>
-        <material name="black"/>
-        <origin xyz="0.0 0.05 0.0" rpy="1.5707 0.0 0.0"/>
-      </visual>
-      <collision>
-        <geometry>
-            <cylinder radius="0.2" length="0.1"/>
-        </geometry>
-        <origin xyz="0.0 0.05 0.0" rpy="1.5707 0.0 0.0"/>
-      </collision>
-      <inertial>
-        <origin xyz="0.0 0.05 0.0" rpy="1.5707 0.0 0.0"/>
-        <mass value="2"/>
-        <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
-    </inertial>
-  </link>
-
-  <joint name="wheel_1_to_base_link" type="continuous">
-      <parent link="base_link"/>
-      <child link="wheel_1"/>
-      <axis xyz="0 1 0" rpy="0 0 0"/>
-      <origin xyz="0.225 0.255 0.076" rpy="0 0 0"/>
-      <limit effort="30" velocity="1.0"/>
   </joint>
 
     <!-- specifies physical attributes of <link name=wheel/> in Gazebo -->
@@ -172,76 +129,5 @@
       <kd value="1.0" />
       <material>Gazebo/Grey</material>
   </gazebo>  
-
-  <transmission name="wheel_1_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <actuator name="$wheel_1_motor">
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-    <!-- joint nam must match joint name specified earlier -->
-    <joint name="wheel_1_to_base_link">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
-    </joint>
-  </transmission>
-
-  <!-- WHEEL 2 -->
-
-  <link name="wheel_2">
-     <!-- need physics (colision, inertia) for gazebo to work !!!! -->
-      <visual>
-        <geometry>
-            <cylinder radius="0.2" length="0.1"/>
-        </geometry>
-        <material name="black"/>
-        <origin xyz="0.0 -0.05 0.0" rpy="1.5707 0.0 0.0"/>
-      </visual>
-      <collision>
-        <geometry>
-            <cylinder radius="0.2" length="0.1"/>
-        </geometry>
-        <origin xyz="0.0 -0.05 0.0" rpy="1.5707 0.0 0.0"/>
-      </collision>
-      <inertial>
-        <origin xyz="0.0 -0.05 0.0" rpy="1.5707 0.0 0.0"/>
-        <mass value="2"/>
-        <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
-    </inertial>
-  </link>
-
-  <joint name="wheel_2_to_base_link" type="continuous">
-      <parent link="base_link"/>
-      <child link="wheel_2"/>
-      <axis xyz="0 1 0" rpy="0 0 0"/>
-      <origin xyz="0.225 -0.255 0.076" rpy="0 0 0"/>
-      <limit effort="30" velocity="1.0"/>
-  </joint>
-
-    <!-- specifies physical attributes of <link name=wheel/> in Gazebo -->
-  <gazebo reference="wheel_2">
-      <mu1 value="200.0"/>
-      <mu2 value="100.0"/>
-      <kp value="10000000.0" />
-      <kd value="1.0" />
-      <material>Gazebo/Grey</material>
-  </gazebo>  
-
-  <transmission name="wheel_2_trans">
-    <type>transmission_interface/SimpleTransmission</type>
-    <actuator name="$wheel_2_motor">
-      <mechanicalReduction>1</mechanicalReduction>
-    </actuator>
-    <!-- joint nam must match joint name specified earlier -->
-    <joint name="wheel_2_to_base_link">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
-    </joint>
-  </transmission>
-
-
-  <!-- Gazebo plugin for ROS Control; this links Gazebo and ROS (topic 2)-->
-  <gazebo>
-    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotNamespace>/</robotNamespace>
-    </plugin>
-  </gazebo>
 
 </robot>
