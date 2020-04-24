@@ -184,7 +184,8 @@
   </joint> -->
 
   <!-- Make four thrusters -->
-  <xacro:thruster_link name="thr_x_left"  xyz="0  0.2 -0.05" rpy="0 ${-PI/2} 0"/>
+  <xacro:thruster_link name="x_thr_left"   xyz="0  0.2 -0.05" rpy="0 ${-PI/2} 0"/>
+  <xacro:thruster_link name="x_thr_right"  xyz="0  -0.2 -0.05" rpy="0 ${-PI/2} 0"/>
 
   <!-- FreeFloating plugin -->
   <gazebo>
@@ -196,32 +197,22 @@
                 <!-- THRUST CONTROL -->
                 <!--    these two thrusters are actually orientable, so the map should not be hard-coded 
                         the thruster name is the name of the corresponding link --> 
-                <!-- <thruster>
+                <thruster>
                     <effort>30</effort>
-                    <name>fwd_left_2</name>
-                </thruster> -->
-
-                <!-- <thruster>
-                    <effort>30</effort>
-                    <name>fwd_right</name>
+                    <name>x_thr_left</name>
                 </thruster>
 
                 <thruster>
                     <effort>30</effort>
-                    <name>temp_thruster</name>
+                    <name>x_thr_right</name>
                 </thruster>
-
-                <thruster>
-                    <effort>30</effort>
-                    <name>temp_thruster2</name>
-                </thruster> -->
                 
                 <!-- <map> describes where the force or torque is applied
                 with respect to body_link frame. Needs at leats one of them otherwise plugin won't work  --> 
-                <!-- <thruster>
+                <thruster>
                     <map>0 1 0 0 0 0</map>
                     <effort>30</effort>
-                </thruster> -->
+                </thruster>
 
       </plugin>
   </gazebo>

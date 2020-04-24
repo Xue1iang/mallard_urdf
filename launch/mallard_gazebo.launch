@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Find model and set other parameters -->
-  <arg name="model" default="$(find mallard_urdf)/urdf/mallard_thrusters.xacro"/>
+  <arg name="model" default="$(find mallard_urdf)/urdf/mallard_main.xacro"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
   <arg name="gz" default="true"/>
@@ -21,7 +21,27 @@
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
     <node name="spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
           args="-urdf -model mallard -param robot_description -x 0 -y 0 -z 1 -R 0 -P 0 -Y 0" />
-         
+
+    <!-- Thrusters control -->
+    <!-- Load controller configurations (vehicle and arm) from YAML file to parameter server -->
+    <rosparam file="$(find mallard_urdf)/config/vectored_mallard.yaml" command="load"/>
+    <!-- Launch low-level PID control for arm body control will not activate as we expect direct thruster control -->
+    <node name="pid_control" pkg="freefloating_gazebo" type="pid_control" output="screen" respawn="true"/>
+
+    <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" if="$(arg gui)">
+        <param name="use_gui" value="true"/>
+        <remap from="joint_states" to="joint_setpoint" />        
+    </node>      -->
+
+    <group ns="thrusters">
+        <param name="robot_description" command="$(find xacro)/xacro $(find mallard_urdf)/urdf/mallard_thrusters.urdf"/>                         
+
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" if="$(arg gui)">
+          <param name="use_gui" value="true"/>
+          <remap from="joint_states" to="/mallard/thruster_command" />
+        </node>   
+                      
+    </group>
     
     <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher"/>
   </group>
