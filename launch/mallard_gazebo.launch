@@ -28,10 +28,10 @@
     <!-- Launch low-level PID control for arm body control will not activate as we expect direct thruster control -->
     <node name="pid_control" pkg="freefloating_gazebo" type="pid_control" output="screen" respawn="true"/>
 
-    <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" if="$(arg gui)">
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" if="$(arg gui)">
         <param name="use_gui" value="true"/>
         <remap from="joint_states" to="joint_setpoint" />        
-    </node>      -->
+    </node>     
 
     <group ns="thrusters">
         <param name="robot_description" command="$(find xacro)/xacro $(find mallard_urdf)/urdf/mallard_thrusters.urdf"/>                         
