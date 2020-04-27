@@ -143,7 +143,7 @@
   </joint> -->
 
 
-  <!-- <link name="lidar">
+  <link name="lidar">
     <visual name="lidar_base">
       <geometry>
         <box size="0.06 0.061 0.048"/>
@@ -173,16 +173,65 @@
     </collision>
 
     <inertial>
-      <mass value="0.250"/>
+      <mass value="0.25"/>
       <inertia ixx="0.00020" ixy="0.0" ixz="0.0" iyy="0.00020" iyz="0.0" izz="0.00015"/>
     </inertial>
-  </link> -->
+  </link>
 
-  <!-- <joint name="lidar_to_base_link" type="fixed">
+  <joint name="lidar_to_base_link" type="fixed">
     <parent link="base_link"/>
     <child link="lidar"/>
     <origin xyz="0.225 0.0 0.152" rpy="0.0 0.0 0.0"/>
-  </joint> -->
+  </joint>
+
+
+  <link name="ballast_1">
+    
+    <visual name="">
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+      <material name="red">
+        <color rgba="0.8 0.0 0.0 1.0"/>
+      </material>
+    </visual>
+    
+    <inertial>
+      <mass value="0.11"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+
+  <link name="ballast_2">
+    
+    <visual name="">
+      <geometry>
+        <sphere radius="0.01"/>
+      </geometry>
+      <material name="red">
+        <color rgba="0.8 0.0 0.0 1.0"/>
+      </material>
+    </visual>
+    
+    <inertial>
+      <mass value="0.02"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+  </link>
+
+<!-- <origin xyz="0.225 0 0.076"> -->
+  <joint name="ballast_1_to_base_link" type="fixed">
+    <origin xyz="0.225 -0.25 0.076"/>
+    <parent link="base_link"/>
+    <child link="ballast_1"/>
+  </joint>
+
+   <joint name="ballast_2_to_base_link" type="fixed">
+    <origin xyz="-0.225 -0.25 0.076"/>
+    <parent link="base_link"/>
+    <child link="ballast_2"/>
+  </joint>
+
 
   <!-- Forward thrusters -->
   <xacro:thruster_link name="x_thr_left"   xyz="${(tl1/2)-0.188}  0.207 -0.041" rpy="0 ${-PI/2} 0"/>
