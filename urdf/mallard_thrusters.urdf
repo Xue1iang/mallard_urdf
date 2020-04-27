@@ -1,11 +1,18 @@
 <?xml version="1.0"?>
 <robot name="thrusters">
-
+    <!-- Forward thrusters -->
     <joint name="x_thr_left">
-        <limit lower="-30" upper="30"/>
+        <limit lower="-7" upper="10"/>
     </joint>
     <joint name="x_thr_right">
-        <limit lower="-30.0" upper="30.0"/>
+        <limit lower="-7" upper="10"/>
     </joint>
-    
+
+    <!-- Side thrusters -->
+    <joint name="y_thr_left">
+        <limit lower="-7" upper="10"/>
+    </joint>
+    <joint name="y_thr_right">
+        <limit lower="-7" upper="10"/>
+    </joint>
 </robot>

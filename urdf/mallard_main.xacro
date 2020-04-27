@@ -128,7 +128,7 @@
       <buoyancy>
           <!-- Compensation coefficient is buoyancy force to weight ratio. Mallard
                buoyancy force is 11.52kg, weight is10.5kg.   -->
-          <compensation>1.1</compensation>
+          <compensation>1.2</compensation>
           <origin xyz= "0 0 0"/>
           <limit radius="0.0"/>
           <damping xyz="50 50 80" rpy="1 1 1"/>
@@ -202,20 +202,30 @@
                 <!--    these two thrusters are actually orientable, so the map should not be hard-coded 
                         the thruster name is the name of the corresponding link --> 
                 <thruster>
-                    <effort>30</effort>
+                    <effort>10</effort>
                     <name>x_thr_left</name>
                 </thruster>
 
                 <thruster>
-                    <effort>30</effort>
+                    <effort>10</effort>
                     <name>x_thr_right</name>
+                </thruster>
+
+                <thruster>
+                    <effort>10</effort>
+                    <name>y_thr_left</name>
+                </thruster>
+
+                <thruster>
+                    <effort>10</effort>
+                    <name>y_thr_right</name>
                 </thruster>
                 
                 <!-- <map> describes where the force or torque is applied
                 with respect to body_link frame. Needs at leats one of them otherwise plugin won't work  --> 
                 <thruster>
                     <map>0 1 0 0 0 0</map>
-                    <effort>30</effort>
+                    <effort>10</effort>
                 </thruster>
 
       </plugin>
