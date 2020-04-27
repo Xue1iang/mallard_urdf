@@ -8,6 +8,9 @@ So far I maneged to to make the physics working such as buoyancy force, drag and
 The <compensation> tag inside <buoyancy> plugin is a ratio of buoyancy force to gravity (weight); 
 i.e. provides percentage of buoyancy force with respect to gravity. If less then 1 the object will sink if bigger it will float.
 
+To create *.rviz config file, launch urdf without args, change frame to (usually) base_link and add robot description in rviz, then save rviz config file. 
+Ammend launch file to add config as arg."
+
 Important:
 - add inside bash line for Gazebo path, so it can find the worlds folder:
   'export GAZEBO_RESOURCE_PATH=/usr/share/gazebo-9/worlds/:${GAZEBO_RESOURCE_PATH}'
