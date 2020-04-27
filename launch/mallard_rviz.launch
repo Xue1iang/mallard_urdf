@@ -5,7 +5,7 @@
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
     <node name="rviz_bridge" pkg="freefloating_gazebo_demo" type="rviz_bridge.py" output="screen" respawn="true"/>
-    <node name="rviz" pkg="rviz" type="rviz"  args="-d $(find mallard_urdf)/config/mallard.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz"  args="-d $(find mallard_urdf)/config/rviz/mallard.rviz" />
 </group>
 
 

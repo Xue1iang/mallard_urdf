@@ -5,8 +5,8 @@
   <xacro:property name="PI" value="3.1415926535897931"/>
   <xacro:property name="tr1" value=".02" />
   <xacro:property name="tl1" value=".1" />
-  <xacro:property name="tr2" value=".05" />
-  <xacro:property name="tl2" value=".03" />
+  <xacro:property name="tr2" value=".047" />
+  <xacro:property name="tl2" value=".045" />
 
   <material name="blue">
     <color rgba="0.0 0.0 0.8 1.0"/>
@@ -130,7 +130,7 @@
           <compensation>1.1</compensation>
           <origin xyz= "0 0 0"/>
           <limit radius="0.0"/>
-          <damping xyz="50 50 100" rpy="1 1 1"/>
+          <damping xyz="30 30 80" rpy="1 1 1"/>
       </buoyancy>
 
   </link>

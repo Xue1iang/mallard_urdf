@@ -1,6 +1,12 @@
 # mallard_urdf
-Mallards simualtaion in Gazebo with urdf description. So far I maneged to to make the physics working 
-such as buoyancy force and drag. It uses control provided from freefloating. 
+Mallards simualtaion in Gazebo with urdf robot description. It uses freefloating_gazebo package 
+(a lot of elemnts are actually borrowed from frefloating_gazebo_demo pakcage 
+https://github.com/freefloating-gazebo/freefloating_gazebo_demo). Using demo is easier to setup control thrusters.
+So far I maneged to to make the physics working such as buoyancy force, drag and control thrusters.
+
+
+The <compensation> tag inside <buoyancy> plugin is a ratio of buoyancy force to gravity (weight); 
+i.e. provides percentage of buoyancy force with respect to gravity. If less then 1 the object will sink if bigger it will float.
 
 Important:
 - add inside bash line for Gazebo path, so it can find the worlds folder:
