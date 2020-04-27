@@ -16,3 +16,9 @@ Important:
   'export GAZEBO_RESOURCE_PATH=/usr/share/gazebo-9/worlds/:${GAZEBO_RESOURCE_PATH}'
 - seting up proper name space inside the launch file so freefloating physics can work. 
   In original package it was <group ns="vectored_auv"> or to control thrusters it is <group ns="thrusters">
+
+
+  To do:
+  - add lidar and see how it balances. I added bit of buoyancy force due to the uneven weight distribution. so <compensation> is set to 1.2 
+    (instead of 1.1). i.e buoyancy/weight = 1.2.
+  - see if you can add a function that represents thruster characteristics found experimentally.
