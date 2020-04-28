@@ -2,7 +2,7 @@
 
   <arg name="model" default="$(find mallard_urdf)/urdf/mallard_main.xacro"/>
   <arg name="gui" default="true" />
-  <arg name="rvizconfig" default="$(find mallard_urdf)/config/rviz/mallard_basic.rviz" />
+  <arg name="rvizconfig" default="$(find mallard_urdf)/config/rviz/stand_alone.rviz" />
 
 
   <param name="robot_description" command="xacro --inorder $(arg model)" />
