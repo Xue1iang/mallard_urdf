@@ -8,12 +8,22 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
 
+  <arg name="box_model" default="$(find mallard_urdf)/urdf/floating_box.urdf"/>
+
+
   <!-- Gazebo world with desired characteristics as world_name -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="gui" value="$(arg gz)" />
     <arg name="paused" value="true"/>
-    <arg name="world_name" value="$(find freefloating_gazebo)/world/underwater.world"/>
+    <!-- <arg name="world_name" value="$(find freefloating_gazebo)/world/underwater.world"/> -->
+     <arg name="world_name" value="$(find mallard_urdf)/world/pond_w_floor.world"/>
   </include>
+
+  <!-- <group ns="floating_box">
+    <param name="robot_description" command="$(find xacro)/xacro $(arg box_model)"/>
+    <node name="spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+          args="-urdf -model floating_box -param robot_description -x 0.0 -y 2.0 -z 1.0 -R 0 -P 0 -Y 0" />
+  </group> -->
 
   <!-- Robot generation in Gazebo. Must be in the same name space for plugin to work -->
   <group ns="mallard">
@@ -33,7 +43,7 @@
     </node>     
 
     <group ns="thrusters">
-        <param name="robot_description" command="$(find xacro)/xacro $(find mallard_urdf)/urdf/mallard_thrusters.urdf"/>                         
+        <param name="robot_description" command="$(find xacro)/xacro $(find mallard_urdf)/urdf/control_thrusters.urdf"/>                         
 
         <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" if="$(arg gui)">
           <param name="use_gui" value="true"/>
@@ -46,7 +56,7 @@
   </group>
   
   <!-- Background -->
-  <param name="terrain_description" command="$(find xacro)/xacro $(find freefloating_gazebo_demo)/terrain/shipwreck/terrain.sdf"/>
-  <node name="terrain_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -model terrain -param terrain_description -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0"/>
+  <!-- <param name="terrain_description" command="$(find xacro)/xacro $(find freefloating_gazebo_demo)/terrain/shipwreck/terrain.sdf"/>
+  <node name="terrain_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -model terrain -param terrain_description -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0"/> -->
 
  </launch>

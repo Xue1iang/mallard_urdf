@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot name="mallard" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="lidar.xacro"/>
+  <xacro:include filename="lidar_body.xacro"/>
+  <xacro:include filename="lidar_sensor.xacro"/>
   <xacro:include filename="ballast.xacro"/>
   <xacro:include filename="thruster.xacro"/>
 
@@ -85,12 +86,22 @@
           <compensation>1.2</compensation>
           <origin xyz= "0 0 0"/>
           <limit radius="0.1"/>
-          <damping xyz="100 100 100" rpy="2 2 2"/>
+          <damping xyz="120 120 120" rpy="2 2 2"/>
       </buoyancy>
 
   </link>
 
-  <xacro:lidar name="sick_lidar" mass="0.27" xyz="0.225 0 0.152"/>
+  <xacro:lidar_body name="lidar_body" mass="0.27" xyz="0.225 0 0.152"/>
+
+  <xacro:LIDAR
+		parent="lidar_body"
+		lidar_name="urg_lidar"
+		lidar_topic="mallard/lidar_data"
+		update_rate="100">
+		<origin xyz="0 0 0.068" rpy="0 0 0"/>
+	</xacro:LIDAR> 
+
+  
 
   <!-- Ballast -->
   <xacro:ballast name="ballast_1" mass="0.14" xyz=" 0.225 -0.25 0.076" rpy="${PI/2} 0 0"/>
@@ -114,22 +125,22 @@
                 <!--    these two thrusters are actually orientable, so the map should not be hard-coded 
                         the thruster name is the name of the corresponding link --> 
                 <thruster>
-                    <effort>10</effort>
+                    <effort>2</effort>
                     <name>x_thr_left</name>
                 </thruster>
 
                 <thruster>
-                    <effort>10</effort>
+                    <effort>2</effort>
                     <name>x_thr_right</name>
                 </thruster>
 
                 <thruster>
-                    <effort>10</effort>
+                    <effort>2</effort>
                     <name>y_thr_left</name>
                 </thruster>
 
                 <thruster>
-                    <effort>10</effort>
+                    <effort>2</effort>
                     <name>y_thr_right</name>
                 </thruster>
                 
@@ -137,7 +148,7 @@
                 with respect to body_link frame. Needs at leats one of them otherwise plugin won't work  --> 
                 <thruster>
                     <map>0 1 0 0 0 0</map>
-                    <effort>10</effort>
+                    <effort>2</effort>
                 </thruster>
 
       </plugin>

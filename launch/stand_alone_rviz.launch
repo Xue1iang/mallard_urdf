@@ -5,7 +5,7 @@
   <arg name="rvizconfig" default="$(find mallard_urdf)/config/rviz/stand_alone.rviz" />
 
 
-  <param name="robot_description" command="xacro --inorder $(arg model)" />
+  <param name="robot_description" command="xacro $(arg model)" />
 
   <!-- Publish states to tf (transform) -->
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
