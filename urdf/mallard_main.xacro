@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
 <robot name="mallard" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="lidar_body.xacro"/>
-  <xacro:include filename="lidar_sensor.xacro"/>
-  <xacro:include filename="ballast.xacro"/>
-  <xacro:include filename="thruster.xacro"/>
+  <xacro:include filename="$(find mallard_urdf)/urdf/lidar_sensor.xacro"/>
+  <xacro:include filename="$(find mallard_urdf)/urdf/lidar_body.xacro"/>
+  <!-- <xacro:include filename="lidar_sensor.xacro"/> -->
+  <xacro:include filename="$(find mallard_urdf)/urdf/ballast.xacro"/>
+  <xacro:include filename="$(find mallard_urdf)/urdf/thruster.xacro"/>
 
   <!-- Thrusters components & constants -->
   <xacro:property name="PI" value="3.1415926535897931"/>
@@ -98,7 +99,7 @@
 		lidar_name="urg_lidar"
 		lidar_topic="mallard/lidar_data"
 		update_rate="100">
-		<origin xyz="0 0 0.068" rpy="0 0 0"/>
+		<origin xyz="0 0 0.044" rpy="0 0 0"/>
 	</xacro:LIDAR> 
 
   

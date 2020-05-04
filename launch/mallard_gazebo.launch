@@ -8,7 +8,7 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
 
-  <arg name="box_model" default="$(find mallard_urdf)/urdf/floating_box.urdf"/>
+  <!-- <arg name="box_model" default="$(find mallard_urdf)/urdf/floating_box.urdf"/> -->
 
 
   <!-- Gazebo world with desired characteristics as world_name -->
