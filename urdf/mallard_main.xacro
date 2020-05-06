@@ -2,7 +2,7 @@
 <robot name="mallard" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:include filename="$(find mallard_urdf)/urdf/lidar_sensor.xacro"/>
-  <xacro:include filename="$(find mallard_urdf)/urdf/lidar_body.xacro"/>
+  <!-- <xacro:include filename="$(find mallard_urdf)/urdf/lidar_body.xacro"/> -->
   <!-- <xacro:include filename="lidar_sensor.xacro"/> -->
   <xacro:include filename="$(find mallard_urdf)/urdf/ballast.xacro"/>
   <xacro:include filename="$(find mallard_urdf)/urdf/thruster.xacro"/>
@@ -14,23 +14,15 @@
   <xacro:property name="tr2" value=".047" />
   <xacro:property name="tl2" value=".045" />
 
-  <!-- <material name="blue">
-    <color rgba="0.0 0.0 0.8 1.0"/>
-  </material>
-  <material name="black">
-    <color rgba="0.0 0.0 0.0 1.0"/>
-  </material>
-  <material name="red">
-    <color rgba="0.8 0.0 0.0 1.0"/>
-  </material>
-  <material name="gray">
-    <color rgba="0.8 0.8 0.8 1.0"/>
-  </material> -->
-
   <gazebo reference="base_link">
       <material>Gazebo/Blue</material>
   </gazebo>
 
+  <!-- <link name="odom">
+    <geometry>
+      <box size="0.01 0.01 0.01"/>
+    </geometry>
+  </link> -->
 
   <link name="base_link">
       <!-- Channels (aluminum connecting elements) -->
@@ -89,20 +81,24 @@
           <limit radius="0.1"/>
           <damping xyz="120 120 120" rpy="2 2 2"/>
       </buoyancy>
-
   </link>
 
-  <xacro:lidar_body name="lidar_body" mass="0.27" xyz="0.225 0 0.152"/>
+  <!-- <joint name="odom_to_base_link" type="fixed">
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    <parent link="odom"/>
+    <child link="base_link"/>
+  </joint> -->
 
-  <xacro:LIDAR
-		parent="lidar_body"
-		lidar_name="urg_lidar"
-		lidar_topic="mallard/lidar_data"
-		update_rate="100">
-		<origin xyz="0 0 0.044" rpy="0 0 0"/>
-	</xacro:LIDAR> 
+  <!-- <xacro:lidar_body name="lidar_base" mass="0.27" xyz="0.225 0 0.152"/> -->
 
-  
+  <xacro:lidar
+		parent="base_link"
+		lidar_name="laser"
+    mass="0.27"
+		lidar_topic="scan"
+		update_rate="15">
+		<origin xyz="0.225 0 0.194"/>
+	</xacro:lidar> 
 
   <!-- Ballast -->
   <xacro:ballast name="ballast_1" mass="0.14" xyz=" 0.225 -0.25 0.076" rpy="${PI/2} 0 0"/>
