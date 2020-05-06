@@ -8,9 +8,6 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
 
-  <!-- <arg name="box_model" default="$(find mallard_urdf)/urdf/floating_box.urdf"/> -->
-
-
   <!-- Gazebo world with desired characteristics as world_name -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="gui" value="$(arg gz)" />
@@ -18,12 +15,6 @@
     <!-- <arg name="world_name" value="$(find freefloating_gazebo)/world/underwater.world"/> -->
      <arg name="world_name" value="$(find mallard_urdf)/world/pond_w_floor.world"/>
   </include>
-
-  <!-- <group ns="floating_box">
-    <param name="robot_description" command="$(find xacro)/xacro $(arg box_model)"/>
-    <node name="spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-          args="-urdf -model floating_box -param robot_description -x 0.0 -y 2.0 -z 1.0 -R 0 -P 0 -Y 0" />
-  </group> -->
 
   <!-- Robot generation in Gazebo. Must be in the same name space for plugin to work -->
   <group ns="mallard">
@@ -54,9 +45,6 @@
     
     <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher"/>
   </group>
-  
-  <!-- Background -->
-  <!-- <param name="terrain_description" command="$(find xacro)/xacro $(find freefloating_gazebo_demo)/terrain/shipwreck/terrain.sdf"/>
-  <node name="terrain_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -model terrain -param terrain_description -x 0 -y 0 -z 0 -R 0 -P 0 -Y 0"/> -->
+
 
  </launch>
