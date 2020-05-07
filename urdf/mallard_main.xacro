@@ -18,12 +18,6 @@
       <material>Gazebo/Blue</material>
   </gazebo>
 
-  <!-- <link name="odom">
-    <geometry>
-      <box size="0.01 0.01 0.01"/>
-    </geometry>
-  </link> -->
-
   <link name="base_link">
       <!-- Channels (aluminum connecting elements) -->
       <visual name="r_channel_visual">
@@ -82,14 +76,6 @@
           <damping xyz="120 120 120" rpy="2 2 2"/>
       </buoyancy>
   </link>
-
-  <!-- <joint name="odom_to_base_link" type="fixed">
-    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-    <parent link="odom"/>
-    <child link="base_link"/>
-  </joint> -->
-
-  <!-- <xacro:lidar_body name="lidar_base" mass="0.27" xyz="0.225 0 0.152"/> -->
 
   <xacro:lidar
 		parent="base_link"
