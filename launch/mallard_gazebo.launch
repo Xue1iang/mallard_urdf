@@ -24,7 +24,7 @@
 
     <!-- Thrusters control -->
     <!-- Load controller configurations (vehicle and arm) from YAML file to parameter server -->
-    <rosparam file="$(find mallard_urdf)/config/vectored_mallard.yaml" command="load"/>
+    <rosparam file="$(find mallard_urdf)/cfg/yaml/vectored_mallard.yaml" command="load"/>
     <!-- Launch low-level PID control for arm body control will not activate as we expect direct thruster control -->
     <node name="pid_control" pkg="freefloating_gazebo" type="pid_control" output="screen" respawn="true"/>
 

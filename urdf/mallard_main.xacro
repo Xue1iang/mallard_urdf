@@ -2,8 +2,6 @@
 <robot name="mallard" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:include filename="$(find mallard_urdf)/urdf/lidar_sensor.xacro"/>
-  <!-- <xacro:include filename="$(find mallard_urdf)/urdf/lidar_body.xacro"/> -->
-  <!-- <xacro:include filename="lidar_sensor.xacro"/> -->
   <xacro:include filename="$(find mallard_urdf)/urdf/ballast.xacro"/>
   <xacro:include filename="$(find mallard_urdf)/urdf/thruster.xacro"/>
 
