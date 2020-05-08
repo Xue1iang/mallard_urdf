@@ -2,13 +2,11 @@
 <launch>
    
    <group ns="mallard">
-      <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
       <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mallard_urdf)/cfg/rviz/mallard_no_bridge.rviz"/>
-      <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mallard_urdf)/config/rviz/control_computer.rviz"/> -->
    </group>
-   <!-- Dynamic Reconfigure with server -->
+
+   <!-- Dynamic Reconfigure -->
    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" />
    <node pkg="mallard_urdf" type="coverage_selection.py" name="coverage_selection" output="screen"/> 
-   <!-- <node pkg="mallard_urdf" type="parameter_server.py" name="parameter_server" output="screen"/> -->
 
 </launch>  
