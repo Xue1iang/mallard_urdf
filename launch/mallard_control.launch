@@ -2,6 +2,7 @@
 <launch>
 
 <!--  Controller here -->
+<node name="controller" pkg="mallard_urdf" type="path_planning_modified.py"/>
 
 <!-- SLAM -->
 <!-- tf1: no odom to base_link, tf2: base_link to laser - inside urdf file at mallard_main.xacro  -->

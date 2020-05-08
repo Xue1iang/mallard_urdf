@@ -12,7 +12,10 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Float64
 from dynamic_reconfigure.server import Server
-from get_pose.cfg import MtwoParamConfig
+#  ------ Simulation --------
+from mallard_urdf.cfg import MtwoParamConfig
+from sensor_msgs.msg import JointState
+from std_msgs.msg import Header
 
 # fixed parameters
 flag_first = True  # sets flag for first goal
@@ -81,8 +84,12 @@ goal_array = kgstripes.stripes(sd, gap, x1, x2, y1, y2, psi)
 # Make a blank goal array
 goal_array = np.array([])
 
-
 #  ---------------- Simulation ----------------------
+a_sim=1.0556
+b_sim=1.1955
+linear_scale=2
+angular_scale=1
+
 thruster_1 = 0
 thruster_2 = 0
 thruster_3 = 0
@@ -153,6 +160,10 @@ def callback(data, paramf):
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array
     global flag_obstacle_close, flag_obstacle_prev, fobs, t_stall
+
+    # ---- simulation----
+    global linear_scale,angular_scale,thruster_1,thruster_2,thruster_3, thruster_4,a_sim,b_sim
+    #  ------------------
 
     # THIS CODE ADDED FOR RVIZ COVERAGE SELECTION
     # ------------------
@@ -275,8 +286,14 @@ def callback(data, paramf):
     # print flag_obstacle_close, np.round(fobs,4)
 
     # ------- Simulation ------------------
+    x_sim = (f_body[0] + fobs[0])*linear_scale;
+    y_sim = (f_body[1] + fobs[1])*linear_scale;
+    psi_sim = (-psif_nav)*angular_scale;
 
-
+    thruster_1 = 0 + 0.5*x_sim + a_sim*psi_sim;
+    thruster_2 = 0 + 0.5*x_sim - a_sim*psi_sim;
+    thruster_3 = 0 - 0.5*y_sim + b_sim*psi_sim;
+    thruster_4 = 0 - 0.5*y_sim - b_sim*psi_sim;
     # ------- end simulation -------------
 
     # put forces into twist structure and publish
@@ -287,6 +304,7 @@ def callback(data, paramf):
         # pub.publish(twist)  # publish twist command
 
         # -------- Simulation code -------- 
+
         pub_velocity.publish(thruster_ctrl_msg())
 
         # ------- end simulation -------------
@@ -340,7 +358,9 @@ def callbackrviz(data):
 if __name__ == '__main__':
     rospy.init_node('move_mallard', anonymous=True)  # initialise node "move_mallard"
     # pub = rospy.Publisher('/mallard/cmd_vel', Twist, queue_size=10)
+    #  ------------ Simulation -----------
     pub_velocity = rospy.Publisher('/mallard/thruster_command',JointState,queue_size=10)
+    # ----------------------------------------
     rospy.Subscriber("/slam_out_pose", PoseStamped, callback, param)  # subscribes to topic "/slam_out_pose"
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, callbackrviz)  # subscribes to "/move_base_simple/goal"
     rospy.Subscriber('/scan', LaserScan, lidar_callback, queue_size=1)  # Lidar raw data
