@@ -92,8 +92,8 @@
   <xacro:thruster_link name="x_thr_left"   xyz="${(tl1/2)-0.188}  0.207 -0.041" rpy="0 ${-PI/2} 0"/>
   <xacro:thruster_link name="x_thr_right"  xyz="${(tl1/2)-0.188} -0.207 -0.041" rpy="0 ${-PI/2} 0"/>
   <!-- Side thrusters -->
-  <xacro:thruster_link name="y_thr_left"   xyz=" 0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${-PI/2}"/>
-  <xacro:thruster_link name="y_thr_right"  xyz="-0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${-PI/2}"/>
+  <xacro:thruster_link name="y_thr_right"   xyz=" 0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${-PI/2}"/>
+  <xacro:thruster_link name="y_thr_left"  xyz="-0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${-PI/2}"/>
 
   <!-- FreeFloating plugin -->
   <gazebo>

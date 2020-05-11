@@ -122,7 +122,8 @@ def path_callback(msg):  # Manage inbound arrays of goal positions for coverage 
     flag_goal_met = False  # sets the flag when rviz nav goal button clicked
     if len(msg.poses) == 0:
         goal_array = np.array([])
-        pub.publish(Twist())  # publish twist command
+        # pub.publish(Twist())  # publish twist command
+        pub_velocity.publish(thruster_ctrl_msg())
         return
     goal_array = np.empty([len(msg.poses), 3])
     # For every goal position, translate from geometry_msgs/Pose messages to [x,y,z] and add to goal_array
