@@ -1,8 +1,13 @@
 #!/usr/bin/env python
-import kgstripes
-import kglocal
-import kguseful
-from obstacle_avoidance import *
+
+import auxiliary.kgstripes as kgstripes
+import auxiliary.kglocal as kglocal
+import auxiliary.kguseful as kguseful
+# import kgstripes
+# import kglocal
+# import kguseful
+from auxiliary.obstacle_avoidance import *
+import numpy as np
 import rospy
 import math
 import collections as coll
@@ -87,7 +92,7 @@ goal_array = np.array([])
 #  ---------------- Simulation ----------------------
 a_sim=1.0556
 b_sim=1.1955
-linear_scale=2
+linear_scale=1
 angular_scale=1
 
 thruster_1 = 0
@@ -102,7 +107,7 @@ def thruster_ctrl_msg():
     msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right']
     msg.position = []
     msg.velocity = []
-    msg.effort = [thruster_1,thruster_2,thruster_3,thruster_4]
+    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3]
     return msg
 
 

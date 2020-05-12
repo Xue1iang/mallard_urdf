@@ -92,8 +92,8 @@
   <xacro:thruster_link name="x_thr_left"   xyz="${(tl1/2)-0.188}  0.207 -0.041" rpy="0 ${-PI/2} 0"/>
   <xacro:thruster_link name="x_thr_right"  xyz="${(tl1/2)-0.188} -0.207 -0.041" rpy="0 ${-PI/2} 0"/>
   <!-- Side thrusters -->
-  <xacro:thruster_link name="y_thr_right"   xyz=" 0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${-PI/2}"/>
-  <xacro:thruster_link name="y_thr_left"  xyz="-0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${-PI/2}"/>
+  <xacro:thruster_link name="y_thr_right"   xyz=" 0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${PI/2}"/>
+  <xacro:thruster_link name="y_thr_left"  xyz="-0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${PI/2}"/>
 
   <!-- FreeFloating plugin -->
   <gazebo>
@@ -106,22 +106,22 @@
                 <!--    these two thrusters are actually orientable, so the map should not be hard-coded 
                         the thruster name is the name of the corresponding link --> 
                 <thruster>
-                    <effort>2</effort>
+                    <effort>10</effort>
                     <name>x_thr_left</name>
                 </thruster>
 
                 <thruster>
-                    <effort>2</effort>
+                    <effort>10</effort>
                     <name>x_thr_right</name>
                 </thruster>
 
                 <thruster>
-                    <effort>2</effort>
+                    <effort>10</effort>
                     <name>y_thr_left</name>
                 </thruster>
 
                 <thruster>
-                    <effort>2</effort>
+                    <effort>10</effort>
                     <name>y_thr_right</name>
                 </thruster>
                 

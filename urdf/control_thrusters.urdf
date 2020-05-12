@@ -2,17 +2,17 @@
 <robot name="thrusters">
     <!-- Forward thrusters -->
     <joint name="x_thr_left">
-        <limit lower="-2" upper="2"/>
+        <limit lower="-7" upper="10"/>
     </joint>
     <joint name="x_thr_right">
-        <limit lower="-2" upper="2"/>
+        <limit lower="-7" upper="10"/>
     </joint>
 
     <!-- Side thrusters -->
     <joint name="y_thr_left">
-        <limit lower="-2" upper="2"/>
+        <limit lower="-7" upper="10"/>
     </joint>
     <joint name="y_thr_right">
-        <limit lower="-2" upper="2"/>
+        <limit lower="-7" upper="10"/>
     </joint>
 </robot>
