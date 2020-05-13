@@ -92,8 +92,8 @@ goal_array = np.array([])
 #  ---------------- Simulation ----------------------
 a_sim=1.0556
 b_sim=1.1955
-linear_scale=1
-angular_scale=1
+linear_scale=2
+angular_scale=2
 
 thruster_1 = 0
 thruster_2 = 0

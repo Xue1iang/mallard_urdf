@@ -1,6 +1,6 @@
 # mallard_urdf
 Mallards simualtaion in Gazebo with urdf robot description. It uses freefloating_gazebo package 
-(a lot of elemnts are actually borrowed from frefloating_gazebo_demo pakcage 
+(a lot of elemnts are actually borrowed from frefloating_gazebo_demo package 
 https://github.com/freefloating-gazebo/freefloating_gazebo_demo). Using demo is easier to setup control thrusters.
 So far I maneged to to make the physics working such as buoyancy force, drag and control thrusters.
 
@@ -24,3 +24,7 @@ Important:
   
 Note on creating rviz config.
 To create *.rviz config file, launch urdf without args, change frame to (usually) base_link and add robot description in rviz, then save rviz config file. Ammend launch file to add config as arg."
+
+Edit, 13th May 2020:
+  - launch gazebo first and 'play' the simulation. Then launch control and teleop, so SLAM can read Lidar values after simulation starts playing.
+  -
