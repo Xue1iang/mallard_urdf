@@ -2,7 +2,13 @@
 Mallards simualtaion in Gazebo with urdf robot description. It uses freefloating_gazebo package 
 (a lot of elemnts are actually borrowed from frefloating_gazebo_demo package 
 https://github.com/freefloating-gazebo/freefloating_gazebo_demo). Using demo is easier to setup control thrusters.
-So far I maneged to to make the physics working such as buoyancy force, drag and control thrusters.
+
+To launch simulation:
+1. $ roslaunch mallard_urdf mallard_gazebo.launch 
+   - this launches gazebo world and Mallard urdf with freefloating_gazebo plugin. also launches Lidar plugin (need to adjust noise mean and stdev)
+2. $ roslaunch mallard_urdf mallard_teleop_and_control.launch 
+   - launches SLAM, control (Keir's for testing)and path planner.
+
 
 
 The <compensation> tag inside <buoyancy> plugin is a ratio of buoyancy force to gravity (weight); 

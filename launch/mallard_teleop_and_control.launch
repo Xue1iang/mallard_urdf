@@ -4,7 +4,7 @@
 <!-- Teleoperation -->
 <group ns="mallard">
       <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mallard_urdf)/cfg/rviz/mallard_no_bridge.rviz"/>
-   </group>
+</group>
 
    <!-- Dynamic Reconfigure -->
    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" />
