@@ -1,8 +1,13 @@
 #!/usr/bin/env python
-import kgstripes
-import kglocal
-import kguseful
-from obstacle_avoidance import *
+
+import auxiliary.kgstripes as kgstripes
+import auxiliary.kglocal as kglocal
+import auxiliary.kguseful as kguseful
+# import kgstripes
+# import kglocal
+# import kguseful
+from auxiliary.obstacle_avoidance import *
+import numpy as np
 import rospy
 import math
 import collections as coll
@@ -88,7 +93,7 @@ goal_array = np.array([])
 a_sim=1.0556
 b_sim=1.1955
 linear_scale=2
-angular_scale=1
+angular_scale=2
 
 thruster_1 = 0
 thruster_2 = 0
@@ -102,7 +107,7 @@ def thruster_ctrl_msg():
     msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right']
     msg.position = []
     msg.velocity = []
-    msg.effort = [thruster_1,thruster_2,thruster_3,thruster_4]
+    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3]
     return msg
 
 
@@ -122,7 +127,8 @@ def path_callback(msg):  # Manage inbound arrays of goal positions for coverage 
     flag_goal_met = False  # sets the flag when rviz nav goal button clicked
     if len(msg.poses) == 0:
         goal_array = np.array([])
-        pub.publish(Twist())  # publish twist command
+        # pub.publish(Twist())  # publish twist command
+        pub_velocity.publish(thruster_ctrl_msg())
         return
     goal_array = np.empty([len(msg.poses), 3])
     # For every goal position, translate from geometry_msgs/Pose messages to [x,y,z] and add to goal_array

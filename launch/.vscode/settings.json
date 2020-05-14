@@ -1,0 +1,7 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/konrad/ROS/workspaces/ros_gazebo_ws/devel/lib/python2.7/dist-packages",
+        "/home/konrad/ROS/workspaces/mcu_ctrl_ws/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ]
+}

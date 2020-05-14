@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/konrad/ROS/workspaces/ros_gazebo_ws/devel/include/**",
+                "/home/konrad/ROS/workspaces/mcu_ctrl_ws/devel/include/**",
+                "/opt/ros/melodic/include/**",
+                "/home/konrad/ROS/workspaces/ros_gazebo_ws/src/ros_gazebo_pkgs/freefloating_gazebo/include/**",
+                "/usr/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "gnu++14"
+        }
+    ],
+    "version": 4
+}

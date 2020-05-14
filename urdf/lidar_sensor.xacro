@@ -42,7 +42,7 @@
             <material>Gazebo/Blue</material>
             <sensor type="ray" name="head_hokuyo_sensor">
                 <pose>0 0 0 0 0 0</pose>
-                <visualize>true</visualize>
+                <visualize>false</visualize>
                 <update_rate>${update_rate}</update_rate>
                 <ray>
                     <scan>
@@ -61,7 +61,7 @@
                   <noise>
                       <type>none</type>                 
                       <mean>0.0</mean>                  
-                      <stddev>0.0</stddev>
+                      <stddev>0.01</stddev>
                   </noise>
                 </ray>
 

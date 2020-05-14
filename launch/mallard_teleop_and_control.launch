@@ -1,7 +1,18 @@
 <?xml version="1.0"?>
 <launch>
 
-<!--  Controller here -->
+<!-- Teleoperation -->
+<group ns="mallard">
+      <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mallard_urdf)/cfg/rviz/mallard_no_bridge.rviz"/>
+</group>
+
+   <!-- Dynamic Reconfigure -->
+   <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" />
+   <node pkg="mallard_urdf" type="coverage_selection.py" name="coverage_selection" output="screen"/>
+<!-- teleop end -->
+
+
+<!-- Controller & SLAM -->
 <node name="controller" pkg="mallard_urdf" type="path_planning_modified.py"/>
 
 <!-- SLAM -->

@@ -3,7 +3,7 @@ import copy
 import rospy
 import roslib
 import sys
-import kgstripes
+import auxiliary.kgstripes as kgstripes
 import numpy as np
 
 from interactive_markers.interactive_marker_server import *
