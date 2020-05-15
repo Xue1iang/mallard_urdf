@@ -40,9 +40,6 @@ qp = [0, 0, 0, 0]
 # control parameters
 param = dict(vel=0.1, psivel=0.2, kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,
              lim=1.4, lim_psi=0.7, goal_tol=0.02, goal_tol_psi=0.1, nv=4, t_ramp=5)
-# param = dict(vel=0.1, psivel=0.2, kp=8, kd=2, kp_psi=3, kd_psi=1,
-#              lim=2, lim_psi=1, goal_tol=0.02, goal_tol_psi=0.1, nv=4) # OK params for m2
-
 
 # obstacle avoidance parameters
 # SICK TIM 571
@@ -50,21 +47,21 @@ angle_min = -2.356
 angle_max = 2.356
 angle_res = 0.00581718
 
-param_obs = {'FK': 2,  # Force gain - PRIMARY tuning parameter
-             'g_cuv': 2,  # gradient for force curve
-             'f_lim': 5,  # force limit
-             'q_min': angle_min,  # min. angle of lidar (rad)
-             'q_max': angle_max,  # max. angle of lidar (rad)
-             'q_res': angle_res,  # resolution angle (rad)
-             'd_min': 0.05,  # minimum value output from lidar
-             'x_min': 0.35,  # minimum distance in x-axis for robot to halt (m)
-             'y_min': 0.35,  # minimum distance in y-axis for robot to halt (m)
-             'r_min': 0.35,  # minimum radius where obstacle is considered (m)
-             'r_max': 0.9,  # maximum radius where obstacle is considered (m)
-             'p_min': 5,  # number of minimum points within threshold for robot to stop
-             'd_obs': 0.001,  # magnitude between points to be considered of the same object
-             'n_obs': 3,  # min. number of points required to be considered an obstacle
-             }
+# param_obs = {'FK': 2,  # Force gain - PRIMARY tuning parameter
+#              'g_cuv': 2,  # gradient for force curve
+#              'f_lim': 5,  # force limit
+#              'q_min': angle_min,  # min. angle of lidar (rad)
+#              'q_max': angle_max,  # max. angle of lidar (rad)
+#              'q_res': angle_res,  # resolution angle (rad)
+#              'd_min': 0.05,  # minimum value output from lidar
+#              'x_min': 0.35,  # minimum distance in x-axis for robot to halt (m)
+#              'y_min': 0.35,  # minimum distance in y-axis for robot to halt (m)
+#              'r_min': 0.35,  # minimum radius where obstacle is considered (m)
+#              'r_max': 0.9,  # maximum radius where obstacle is considered (m)
+#              'p_min': 5,  # number of minimum points within threshold for robot to stop
+#              'd_obs': 0.001,  # magnitude between points to be considered of the same object
+#              'n_obs': 3,  # min. number of points required to be considered an obstacle
+#              }
 
 # setup buffers
 dtv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
@@ -139,9 +136,9 @@ def path_callback(msg):  # Manage inbound arrays of goal positions for coverage 
 # ----------------------------------------------------------
 
 
-def gain_callback(msg):
-    global param_obs
-    param_obs['FK'] = msg.data
+# def gain_callback(msg):
+#     global param_obs
+#     param_obs['FK'] = msg.data
 
 
 def dynReconfigCallback(config, level):
@@ -181,7 +178,7 @@ def callback(data, paramf):
     # ------------------
 
     # pub = rospy.Publisher('/mallard/cmd_vel', Twist, queue_size=10)
-    twist = Twist()
+    # twist = Twist()
 
     q_now = [data.pose.orientation.x, data.pose.orientation.y, data.pose.orientation.z, data.pose.orientation.w]
 
@@ -265,6 +262,7 @@ def callback(data, paramf):
     # build difference history buffers and calculate velocities
     t_now = (data.header.stamp.secs + data.header.stamp.nsecs * 0.000000001) - t0  # time since start of goal
 
+    # 'nv' parameter comes into play here
     dtv.appendleft(t_now - tp)  # time difference vector
     dxv.appendleft(data.pose.position.x - xp)  # x difference vector
     dyv.appendleft(data.pose.position.y - yp)  # y difference vector
@@ -324,15 +322,15 @@ def callback(data, paramf):
 
     n_safe = n_safe + 1
     # if goal is met then move to next goal
-    if not flag_obstacle_close:
-        if abs(x_goal - data.pose.position.x) <= paramf['goal_tol']:
-            if abs(y_goal - data.pose.position.y) <= paramf['goal_tol']:
-                e_psi = kguseful.err_psi_fun(q_now, q_goal)
-                if abs(e_psi) <= paramf['goal_tol_psi']:
-                    if goal_array.shape[0] != n_goals + 1:  # if there are more goals
-                        print 'goal met'
-                        flag_goal_met = True  # set flag to move to next goal
-                    if goal_array.shape[0] == n_goals + 1:  # if there are more goals
+    # if not flag_obstacle_close:
+    if abs(x_goal - data.pose.position.x) <= paramf['goal_tol']:
+        if abs(y_goal - data.pose.position.y) <= paramf['goal_tol']:
+            e_psi = kguseful.err_psi_fun(q_now, q_goal)
+            if abs(e_psi) <= paramf['goal_tol_psi']:
+                if goal_array.shape[0] != n_goals + 1:  # if there are more goals
+                    print 'goal met'
+                    flag_goal_met = True  # set flag to move to next goal
+                if goal_array.shape[0] == n_goals + 1:  # if there are more goals
                         print 'final goal met - holding position'
 
     # change current to previous values
@@ -370,7 +368,7 @@ if __name__ == '__main__':
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, callbackrviz)  # subscribes to "/move_base_simple/goal"
     # ---------------------------------------- OBSTACLE removed
     # rospy.Subscriber('/scan', LaserScan, lidar_callback, queue_size=1)  # Lidar raw data
-    rospy.Subscriber('/gain_tune', Float64, gain_callback, queue_size=1)
+    # rospy.Subscriber('/gain_tune', Float64, gain_callback, queue_size=1)
     # Subscribe to array of goal poses from RVIZ interactive coverage selector
     rospy.Subscriber('/path_poses', PoseArray, path_callback, queue_size=1)
     dynrecon = Server(MtwoParamConfig, dynReconfigCallback)
