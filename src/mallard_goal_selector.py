@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 
+import math
+import rospy
+import numpy as np
+import collections as coll
+import tf.transformations as tft
+import auxiliary.kglocal as kglocal
+import auxiliary.kguseful as kguseful
+import auxiliary.kgstripes as kgstripes
+from std_msgs.msg import Float64
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
 from mallard_urdf.cfg import MtwoParamConfig
 from dynamic_reconfigure.server import Server
 from geometry_msgs.msg import PoseStamped, PoseArray
-from geometry_msgs.msg import Twist
-from sensor_msgs.msg import LaserScan
-from std_msgs.msg import Float64
-import auxiliary.kgstripes as kgstripes
-import auxiliary.kglocal as kglocal
-import auxiliary.kguseful as kguseful
-import tf.transformations as tft
-import collections as coll
-import numpy as np
-import rospy
-import math
+
 
 # fixed parameters
 flag_first = True  # sets flag for first goal
@@ -110,7 +111,7 @@ def callback(data, paramf):
     if flag_first or flag_goal_met:
         t0 = data.header.stamp.secs + data.header.stamp.nsecs * 0.000000001
         dist = math.sqrt(pow((x_goal - x0), 2) + pow((y_goal - y0), 2))
-        t_goal = kguseful.safe_div(dist, paramf['vel'])  # avoid zero division stability
+        t_goal = kguseful.safe_div(dist, paramf['vel'])  
         ed = kguseful.err_psi_fun(q0, q_goal)
         t_goal_psi = abs(kguseful.safe_div(ed, paramf['psivel']))
         flag_first = False
@@ -141,6 +142,11 @@ def callback(data, paramf):
                 if goal_array.shape[0] == n_goals + 1:  # if there are no more goals
                         print 'final goal met - holding position'
 
+    #  --------- Publish goals ---------
+    goals_stamped = PoseStamped()
+    goals_stamped.pose.position.x = x_goal
+    pub_goal.publish(goals_stamped)
+
     # change current to previous values
     tp = t_now
     xp = data.pose.position.x
@@ -156,8 +162,7 @@ def callbackrviz(data):
 
 if __name__ == '__main__':
     rospy.init_node('goal_selector', anonymous=True)  # initialise node "move_mallard"
-    #  ------------ Simulation -----------
-    # pub_velocity = rospy.Publisher('/mallard/thruster_command',JointState,queue_size=10)
+    pub_goal = rospy.Publisher('/mallard/goals',PoseStamped,queue_size=10)
     rospy.Subscriber("/slam_out_pose", PoseStamped, callback, param)  # subscribes to topic "/slam_out_pose"
     rospy.Subscriber('/path_poses', PoseArray, path_callback, queue_size=1)
     # Gets new sets of goals
