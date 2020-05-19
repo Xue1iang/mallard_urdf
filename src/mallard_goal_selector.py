@@ -121,13 +121,14 @@ def callback(data, paramf):
         # rospy.loginfo("xg: %s, yg: %s", x_goal, y_goal)
         rospy.loginfo("goal number: %s, end goal: %s", n_goals + 1, goal_array.shape[0])
 
-    # get current desired positions and velocities
-    xvelmax = abs(kguseful.safe_div((x_goal-x0), t_goal))
-    yvelmax = abs(kguseful.safe_div((y_goal-y0), t_goal))
     # time since start of the goal:
     t_now = (data.header.stamp.secs + data.header.stamp.nsecs * 0.000000001) - t0
+    # get desired linear positions and velocities
+    xvelmax = abs(kguseful.safe_div((x_goal-x0), t_goal))
+    yvelmax = abs(kguseful.safe_div((y_goal-y0), t_goal))
     xdes, xveldes = kglocal.velramp(t_now, xvelmax, x0, x_goal, param['t_ramp'])
     ydes, yveldes = kglocal.velramp(t_now, yvelmax, y0, y_goal, param['t_ramp'])
+    # get desired angular positions and velocities
     qdes = kglocal.despsi_fun(q_goal, t_goal_psi, q0, t_now)
     psiveldes = kglocal.desvelpsi_fun(ed, t_goal_psi, t_now, paramf['psivel'])
 
@@ -143,8 +144,18 @@ def callback(data, paramf):
                         print 'final goal met - holding position'
 
     #  --------- Publish goals ---------
+    # create object 'Posestamped'
     goals_stamped = PoseStamped()
-    goals_stamped.pose.position.x = x_goal
+    # assign goal values (desired position and velocity)
+    # orientation gets assigned velocity
+    goals_stamped.pose.position.x = xdes
+    goals_stamped.pose.orientation.x = xveldes
+    goals_stamped.pose.position.y = ydes
+    goals_stamped.pose.orientation.y = yveldes
+    # goals_stamped.pose.position.z = qdes
+    # goals_stamped.pose.orientation.z = psiveldes
+    
+    
     pub_goal.publish(goals_stamped)
 
     # change current to previous values
