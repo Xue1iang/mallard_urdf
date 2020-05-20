@@ -8,12 +8,13 @@ import tf.transformations as tft
 import auxiliary.kglocal as kglocal
 import auxiliary.kguseful as kguseful
 import auxiliary.kgstripes as kgstripes
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, Float64MultiArray
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from mallard_urdf.cfg import MtwoParamConfig
 from dynamic_reconfigure.server import Server
 from geometry_msgs.msg import PoseStamped, PoseArray
+
 
 
 # fixed parameters
@@ -145,18 +146,22 @@ def callback(data, paramf):
 
     #  --------- Publish goals ---------
     # create object 'Posestamped'
-    goals_stamped = PoseStamped()
+    # goals_stamped = PoseStamped()
     # assign goal values (desired position and velocity)
     # orientation gets assigned velocity
-    goals_stamped.pose.position.x = xdes
-    goals_stamped.pose.orientation.x = xveldes
-    goals_stamped.pose.position.y = ydes
-    goals_stamped.pose.orientation.y = yveldes
+    # goals_stamped.pose.position.x = xdes
+    # goals_stamped.pose.orientation.x = xveldes
+    # goals_stamped.pose.position.y = ydes
+    # goals_stamped.pose.orientation.y = yveldes
     # goals_stamped.pose.position.z = qdes
     # goals_stamped.pose.orientation.z = psiveldes
+
+    # publish array
+    array = [xdes,ydes,qdes[0],qdes[1],qdes[2],qdes[3]]
+    data_to_send = Float64MultiArray(data = array)
     
-    
-    pub_goal.publish(goals_stamped)
+    # pub_goal.publish(goals_stamped)
+    pub_goal.publish(data_to_send)
 
     # change current to previous values
     tp = t_now
@@ -173,7 +178,8 @@ def callbackrviz(data):
 
 if __name__ == '__main__':
     rospy.init_node('goal_selector', anonymous=True)  # initialise node "move_mallard"
-    pub_goal = rospy.Publisher('/mallard/goals',PoseStamped,queue_size=10)
+    # pub_goal = rospy.Publisher('/mallard/goals',PoseStamped,queue_size=10)
+    pub_goal = rospy.Publisher('/mallard/goals',Float64MultiArray,queue_size=10)
     rospy.Subscriber("/slam_out_pose", PoseStamped, callback, param)  # subscribes to topic "/slam_out_pose"
     rospy.Subscriber('/path_poses', PoseArray, path_callback, queue_size=1)
     # Gets new sets of goals
@@ -182,3 +188,8 @@ if __name__ == '__main__':
     # Subscribe to array of goal poses from RVIZ interactive coverage selector
     dynrecon = Server(MtwoParamConfig, dynReconfigCallback)
     rospy.spin()
+
+    # --------------------------------------------------------------------------------
+    # data_to_send = Float64MultiArray()  # the data to be sent, initialise the array
+    # data_to_send.data = array # assign the array with the value you want to send
+    # pub.publish(data_to_send)u
