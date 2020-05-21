@@ -7,13 +7,14 @@
 </group>
 
    <!-- Dynamic Reconfigure -->
-   <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" />
+   <!-- <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" /> -->
    <node pkg="mallard_urdf" type="coverage_selection.py" name="coverage_selection" output="screen"/>
 <!-- teleop end -->
 
 
 <!-- Controller & SLAM -->
-<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector.py"/>
+<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector.py" output="screen"/>
+<node name="controller" pkg="mallard_urdf" type="mallard_PD_controller.py" output="screen"/>
 
 <!-- SLAM -->
 <!-- tf1: no odom to base_link, tf2: base_link to laser - inside urdf file at mallard_main.xacro  -->

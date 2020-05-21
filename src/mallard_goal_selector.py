@@ -21,6 +21,7 @@ from geometry_msgs.msg import PoseStamped, PoseArray
 flag_first = True  # sets flag for first goal
 flag_goal_met = False  # sets the flag when rviz nav goal button clicked
 flag_end = False
+thrusters_on_flag = False
 t_stall = 0
 n_goals = 0
 n_safe = 1
@@ -43,8 +44,12 @@ goal_array = kgstripes.stripes(sd, gap, x1, x2, y1, y2, psi)
 goal_array = np.array([])
 
 # control parameters
-param = dict(vel=0.1, psivel=0.2, goal_tol=0.02, goal_tol_psi=0.1, t_ramp=5)
+param = dict(vel=0.1, psivel=0.2, goal_tol=0.02, goal_tol_psi=0.1,  nv=4, t_ramp=5)
 
+dtv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
+dxv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
+dyv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
+dpsiv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
 
 def poseParse(PoseMsg):  # Convert geometry_msgs/Pose structures into [x,y,z]
     orientation = tft.euler_from_quaternion([PoseMsg.orientation.x, PoseMsg.orientation.y, PoseMsg.orientation.z, PoseMsg.orientation.w])
@@ -54,21 +59,24 @@ def poseParse(PoseMsg):  # Convert geometry_msgs/Pose structures into [x,y,z]
 
 def path_callback(msg):  # Manage inbound arrays of goal positions for coverage "lawnmower"
     # Acess global variable goal_array, composed of an array of [x,y,z] coords
-    global goal_array, flag_first, flag_goal_met, n_goals
+    global goal_array, flag_first, flag_goal_met, n_goals,thrusters_on_flag
     # Ensure no previous goal positions are held by starting with blank array
     n_goals = 0
     flag_first = True
     flag_goal_met = False  # sets the flag when rviz nav goal button clicked
+    thrusters_on_flag = True
 
     if len(msg.poses) == 0:
         goal_array = np.array([])
         # stop thrusters?
+        thrusters_on_flag = False
         return
+    else:
+        goal_array = np.empty([len(msg.poses), 3])
+        # For every goal position, translate from geometry_msgs/Pose messages to [x,y,z] and add to goal_array
+        for idx, position in enumerate(msg.poses):
+            goal_array[idx,:] = poseParse(position)
 
-    goal_array = np.empty([len(msg.poses), 3])
-    # For every goal position, translate from geometry_msgs/Pose messages to [x,y,z] and add to goal_array
-    for idx, position in enumerate(msg.poses):
-        goal_array[idx,:] = poseParse(position)
 
 def dynReconfigCallback(config, level):
     global param
@@ -79,13 +87,17 @@ def dynReconfigCallback(config, level):
     rospy.loginfo("linvel: %s", param['vel'])
     return config
 
-def callback(data, paramf):
+def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
-    global flag_first, flag_goal_met, flag_end, n_safe, n_goals
+    global flag_first, flag_goal_met, flag_end, n_safe, n_goals, thrusters_on_flag
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array
 
-    # if no goal positions exist, then exit this callback.
+    
+
+    # if no goal positions exist, then exit this callback!!!
     if len(goal_array) == 0:
+        data_to_send = Float64MultiArray(data = [thrusters_on_flag])
+        pub_goal.publish(data_to_send)
         return
 
     q_now = [data.pose.orientation.x, data.pose.orientation.y, data.pose.orientation.z, data.pose.orientation.w]
@@ -124,7 +136,8 @@ def callback(data, paramf):
 
     # time since start of the goal:
     t_now = (data.header.stamp.secs + data.header.stamp.nsecs * 0.000000001) - t0
-    # get desired linear positions and velocities
+
+    # GOALS - get desired linear positions and velocities
     xvelmax = abs(kguseful.safe_div((x_goal-x0), t_goal))
     yvelmax = abs(kguseful.safe_div((y_goal-y0), t_goal))
     xdes, xveldes = kglocal.velramp(t_now, xvelmax, x0, x_goal, param['t_ramp'])
@@ -132,6 +145,16 @@ def callback(data, paramf):
     # get desired angular positions and velocities
     qdes = kglocal.despsi_fun(q_goal, t_goal_psi, q0, t_now)
     psiveldes = kglocal.desvelpsi_fun(ed, t_goal_psi, t_now, paramf['psivel'])
+
+    # VELOCITIES - calculate velocities from current and previous positions
+    dtv.appendleft(t_now - tp)  # time difference vector
+    dxv.appendleft(data.pose.position.x - xp)  # x difference vector
+    dyv.appendleft(data.pose.position.y - yp)  # y difference vector
+    dpsi = kguseful.err_psi_fun(qp, q_now)
+    dpsiv.appendleft(dpsi)  # psi difference vector
+    xvel = kglocal.vel_fun(list(dxv), list(dtv))  # velocity vectors x, y and psi
+    yvel = kglocal.vel_fun(list(dyv), list(dtv))
+    psivel = kglocal.vel_fun(list(dpsiv), list(dtv))
 
     # Test if goal has been met:
     if abs(x_goal - data.pose.position.x) <= paramf['goal_tol']:
@@ -145,25 +168,21 @@ def callback(data, paramf):
                         print 'final goal met - holding position'
 
     #  --------- Publish goals ---------
-    # create object 'Posestamped'
-    # goals_stamped = PoseStamped()
-    # assign goal values (desired position and velocity)
-    # orientation gets assigned velocity
-    # goals_stamped.pose.position.x = xdes
-    # goals_stamped.pose.orientation.x = xveldes
-    # goals_stamped.pose.position.y = ydes
-    # goals_stamped.pose.orientation.y = yveldes
-    # goals_stamped.pose.position.z = qdes
-    # goals_stamped.pose.orientation.z = psiveldes
-
-    # publish array
-    array = [xdes,ydes,qdes[0],qdes[1],qdes[2],qdes[3]]
+    # current position
+    print("calback from topic:/slam_out_pose")
+    # publish goal array
+    array = [thrusters_on_flag, xdes,ydes,qdes[0],qdes[1],\
+             qdes[2],qdes[3],xveldes,yveldes,psiveldes]
     data_to_send = Float64MultiArray(data = array)
-    
-    # pub_goal.publish(goals_stamped)
     pub_goal.publish(data_to_send)
 
-    # change current to previous values
+    # xf_nav = kglocal.cont_fun(data.pose.position.x, xdes, xvel, xveldes, paramf['kp'], paramf['kd'], paramf['lim'])
+    # yf_nav = kglocal.cont_fun(data.pose.position.y, ydes, yvel, yveldes, paramf['kp'], paramf['kd'], paramf['lim'])
+    # psif_nav = kglocal.contpsi_fun(q_now, qdes, psivel, psiveldes, paramf['kp_psi'], paramf['kd_psi'],paramf['lim_psi'])
+    # pub_goal.publish(goals_stamped)
+    
+
+    # PREVIOUS VALUES - change current to previous values
     tp = t_now
     xp = data.pose.position.x
     yp = data.pose.position.y
@@ -180,7 +199,7 @@ if __name__ == '__main__':
     rospy.init_node('goal_selector', anonymous=True)  # initialise node "move_mallard"
     # pub_goal = rospy.Publisher('/mallard/goals',PoseStamped,queue_size=10)
     pub_goal = rospy.Publisher('/mallard/goals',Float64MultiArray,queue_size=10)
-    rospy.Subscriber("/slam_out_pose", PoseStamped, callback, param)  # subscribes to topic "/slam_out_pose"
+    rospy.Subscriber("/slam_out_pose", PoseStamped, slam_callback, param)  # subscribes to topic "/slam_out_pose"
     rospy.Subscriber('/path_poses', PoseArray, path_callback, queue_size=1)
     # Gets new sets of goals
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, callbackrviz) 

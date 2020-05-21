@@ -38,10 +38,10 @@
         <param name="robot_description" command="$(find xacro)/xacro $(find mallard_urdf)/urdf/control_thrusters.urdf"/>                         
 
         <!-- GUI by joint_state_publisher to control manually thrust magnitude -->
-        <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" if="$(arg gui)">
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" respawn="true" if="$(arg gui)">
           <param name="use_gui" value="true"/>
           <remap from="joint_states" to="/mallard/thruster_command" />
-        </node>    -->
+        </node>   
                       
     </group>
     
