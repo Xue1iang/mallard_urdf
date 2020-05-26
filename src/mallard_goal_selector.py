@@ -21,7 +21,7 @@ from geometry_msgs.msg import PoseStamped, PoseArray
 flag_first = True  # sets flag for first goal
 flag_goal_met = False  # sets the flag when rviz nav goal button clicked
 flag_end = False
-thrusters_on_flag = False
+thrusters_on = False
 t_stall = 0
 n_goals = 0
 n_safe = 1
@@ -29,6 +29,7 @@ tp = -0.05 # time_previous
 xp = 0
 yp = 0
 qp = [0, 0, 0, 0]
+psides = 0
 
 # stripe parameters 
 gap = 0.2
@@ -59,17 +60,17 @@ def poseParse(PoseMsg):  # Convert geometry_msgs/Pose structures into [x,y,z]
 
 def path_callback(msg):  # Manage inbound arrays of goal positions for coverage "lawnmower"
     # Acess global variable goal_array, composed of an array of [x,y,z] coords
-    global goal_array, flag_first, flag_goal_met, n_goals,thrusters_on_flag
+    global goal_array, flag_first, flag_goal_met, n_goals,thrusters_on
     # Ensure no previous goal positions are held by starting with blank array
     n_goals = 0
     flag_first = True
     flag_goal_met = False  # sets the flag when rviz nav goal button clicked
-    thrusters_on_flag = True
+    thrusters_on = True
 
     if len(msg.poses) == 0:
         goal_array = np.array([])
         # stop thrusters?
-        thrusters_on_flag = False
+        thrusters_on = False
         return
     else:
         goal_array = np.empty([len(msg.poses), 3])
@@ -89,14 +90,14 @@ def dynReconfigCallback(config, level):
 
 def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
-    global flag_first, flag_goal_met, flag_end, n_safe, n_goals, thrusters_on_flag
-    global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array
+    global flag_first, flag_goal_met, flag_end, n_safe, n_goals, thrusters_on
+    global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
 
     
 
     # if no goal positions exist, then exit this callback!!!
     if len(goal_array) == 0:
-        data_to_send = Float64MultiArray(data = [thrusters_on_flag])
+        data_to_send = Float64MultiArray(data = [thrusters_on])
         pub_goal.publish(data_to_send)
         return
 
@@ -144,6 +145,9 @@ def slam_callback(data, paramf):
     ydes, yveldes = kglocal.velramp(t_now, yvelmax, y0, y_goal, param['t_ramp'])
     # get desired angular positions and velocities
     qdes = kglocal.despsi_fun(q_goal, t_goal_psi, q0, t_now)
+
+    # Angle (Psides) and angular velocity (psiveldes) in euler:
+    psides = tft.euler_from_quaternion(qdes) # Its a list: (roll,pitch,yaw)
     psiveldes = kglocal.desvelpsi_fun(ed, t_goal_psi, t_now, paramf['psivel'])
 
     # VELOCITIES - calculate velocities from current and previous positions
@@ -168,11 +172,10 @@ def slam_callback(data, paramf):
                         print 'final goal met - holding position'
 
     #  --------- Publish goals ---------
-    # current position
-    print("calback from topic:/slam_out_pose")
+
     # publish goal array
-    array = [thrusters_on_flag, xdes,ydes,qdes[0],qdes[1],\
-             qdes[2],qdes[3],xveldes,yveldes,psiveldes]
+    array = [thrusters_on, xdes,ydes,psides[2],\
+             xveldes,yveldes,psiveldes]
     data_to_send = Float64MultiArray(data = array)
     pub_goal.publish(data_to_send)
 
