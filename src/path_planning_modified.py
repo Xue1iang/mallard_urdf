@@ -288,17 +288,17 @@ def callback(data, paramf):
     #  Get forces in nav frame using PD controller
     xf_nav = kglocal.cont_fun(data.pose.position.x, xdes, xvel, xveldes, paramf['kp'], paramf['kd'], paramf['lim'])
     yf_nav = kglocal.cont_fun(data.pose.position.y, ydes, yvel, yveldes, paramf['kp'], paramf['kd'], paramf['lim'])
-    
+    psif_nav = kglocal.contpsi_fun(q_now, qdes, psivel, psiveldes, paramf['kp_psi'], paramf['kd_psi'],paramf['lim_psi'])
+
 
     # put xy forces into body frame
     f_body = kguseful.quat_rot([xf_nav, yf_nav, 0], [-q_now[0], -q_now[1], -q_now[2], q_now[3]])
 
     # print flag_obstacle_close, np.round(fobs,4)
 
-    # ------- Simulation ------------------
-    # ---------------------------------------- OBSTACLE removed
-    x_sim = (f_body[0])*linear_scale
-    y_sim = (f_body[1])*linear_scale
+    # ------- Simulation ---------
+    x_sim   = (f_body[0])*linear_scale
+    y_sim   = (f_body[1])*linear_scale
     psi_sim = (-psif_nav)*angular_scale
 
     thruster_1 = 0 + 0.5*x_sim + a_sim*psi_sim

@@ -21,7 +21,7 @@ from geometry_msgs.msg import PoseStamped, PoseArray
 flag_first = True  # sets flag for first goal
 flag_goal_met = False  # sets the flag when rviz nav goal button clicked
 flag_end = False
-thrusters_on = False
+goals_received = False
 t_stall = 0
 n_goals = 0
 n_safe = 1
@@ -60,17 +60,17 @@ def poseParse(PoseMsg):  # Convert geometry_msgs/Pose structures into [x,y,z]
 
 def path_callback(msg):  # Manage inbound arrays of goal positions for coverage "lawnmower"
     # Acess global variable goal_array, composed of an array of [x,y,z] coords
-    global goal_array, flag_first, flag_goal_met, n_goals,thrusters_on
+    global goal_array, flag_first, flag_goal_met, n_goals,goals_received
     # Ensure no previous goal positions are held by starting with blank array
     n_goals = 0
     flag_first = True
     flag_goal_met = False  # sets the flag when rviz nav goal button clicked
-    thrusters_on = True
+    goals_received = True
 
     if len(msg.poses) == 0:
         goal_array = np.array([])
         # stop thrusters?
-        thrusters_on = False
+        goals_received = False
         return
     else:
         goal_array = np.empty([len(msg.poses), 3])
@@ -90,14 +90,14 @@ def dynReconfigCallback(config, level):
 
 def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
-    global flag_first, flag_goal_met, flag_end, n_safe, n_goals, thrusters_on
+    global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
 
     
 
     # if no goal positions exist, then exit this callback!!!
     if len(goal_array) == 0:
-        data_to_send = Float64MultiArray(data = [thrusters_on])
+        data_to_send = Float64MultiArray(data = [goals_received])
         pub_goal.publish(data_to_send)
         return
 
@@ -174,7 +174,7 @@ def slam_callback(data, paramf):
     #  --------- Publish goals ---------
 
     # publish goal array
-    array = [thrusters_on, xdes,ydes,psides[2],\
+    array = [goals_received, xdes,ydes,psides[2],\
              xveldes,yveldes,psiveldes]
     data_to_send = Float64MultiArray(data = array)
     pub_goal.publish(data_to_send)
