@@ -149,7 +149,7 @@ def slam_callback(data, paramf):
     # Angle (Psides) and angular velocity (psiveldes) in euler:
     psides = tft.euler_from_quaternion(qdes) # Its a list: (roll,pitch,yaw)
     psiveldes = kglocal.desvelpsi_fun(ed, t_goal_psi, t_now, paramf['psivel'])
-
+    
     # VELOCITIES - calculate velocities from current and previous positions
     dtv.appendleft(t_now - tp)  # time difference vector
     dxv.appendleft(data.pose.position.x - xp)  # x difference vector

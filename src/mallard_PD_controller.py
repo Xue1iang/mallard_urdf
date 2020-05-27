@@ -3,10 +3,8 @@
 import math
 import rospy
 import numpy as np
-import collections as coll
 import tf.transformations as tft
-import auxiliary.kglocal as kglocal
-import auxiliary.kguseful as kguseful
+import auxiliary.mallardControl as control
 from std_msgs.msg import Float64, Float64MultiArray
 from mallard_urdf.cfg import MtwoParamConfig
 from dynamic_reconfigure.server import Server
@@ -14,7 +12,7 @@ from geometry_msgs.msg import PoseStamped, PoseArray
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
-import auxiliary.mallardControl as control
+
 
 # variables for velocity calculations:
 time_prev = 0
@@ -44,11 +42,7 @@ thruster_4 = 0
 param = dict(kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,lim=1.4, lim_psi=0.7)
 
 # Functions
-def get_velocity (current_pos,previous_pos,time):
-    return (current_pos - previous_pos)/time
 
-def get_ang_velocity(current_ang,previous_ang,time):
-    return (current_ang - previous_ang)/time
 
 # required to pass control forces into simulation
 def thruster_ctrl_msg():
@@ -65,7 +59,7 @@ def thruster_ctrl_msg():
 def goal_callback(array):
     global goals_received, x_goal, y_goal,psi_goal
     global x_vel_goal,y_vel_goal,psi_vel_goal
-
+    
     # goals_received flag has always value (bool) published
     goals_received = array.data[0]
 
@@ -74,7 +68,6 @@ def goal_callback(array):
         x_goal       = array.data[1]
         y_goal       = array.data[2]
         psi_goal     = array.data[3]
-
         x_vel_goal   = array.data[4]
         y_vel_goal   = array.data[5]
         psi_vel_goal = array.data[6]
@@ -104,24 +97,26 @@ def slam_callback(msg):
     time = (msg.header.stamp.secs + msg.header.stamp.nsecs * 0.000000001)
     # Derive velocities from slam data:
     time_diff = time - time_prev
-    x_vel   = get_velocity(x,x_prev,time_diff)
-    y_vel   = get_velocity(y,y_prev,time_diff)
-    psi_vel = get_velocity(psi,psi_prev,time_diff)
+    x_vel   = control.get_velocity(x,x_prev,time_diff)
+    y_vel   = control.get_velocity(y,y_prev,time_diff)
+    psi_vel = control.get_velocity(psi,psi_prev,time_diff)
 
     # ----- Control -----
     #  Get forces in global frame using PD controller
     x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
-    y_global_ctrl   = kglocal.cont_fun(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
-    psi_global_ctrl = kglocal.cont_fun(psi, psi_goal,psi_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
+    y_global_ctrl   = control.proportional(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
+    psi_global_ctrl = control.proportional_angle(psi, psi_goal,psi_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
     # convert into body frame:
     x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
     y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
     
     # ----- Simulation -----
+    # vector forces in body frame
     x_sim   = (x_body_ctrl)*linear_scale
     y_sim   = (y_body_ctrl)*linear_scale
     psi_sim = (-psi_global_ctrl)*angular_scale
 
+    # thrust allocation
     thruster_1 = 0 + 0.5*x_sim + a_sim*psi_sim
     thruster_2 = 0 + 0.5*x_sim - a_sim*psi_sim
     thruster_3 = 0 - 0.5*y_sim + b_sim*psi_sim
@@ -129,7 +124,7 @@ def slam_callback(msg):
     # Publish forces to simulation (joint_state_publisher message)
     pub_velocity.publish(thruster_ctrl_msg())
 
-    # ----- 
+    # ----- Next iteratioon -----
     # Before finishing, assign current values to previous ones
     time_prev = time
     x_prev    = x
