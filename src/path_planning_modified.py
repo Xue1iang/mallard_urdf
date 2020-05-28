@@ -6,7 +6,7 @@ import auxiliary.kguseful as kguseful
 # import kgstripes
 # import kglocal
 # import kguseful
-from auxiliary.obstacle_avoidance import *
+# from auxiliary.obstacle_avoidance import *
 import numpy as np
 import rospy
 import math
@@ -40,9 +40,6 @@ qp = [0, 0, 0, 0]
 # control parameters
 param = dict(vel=0.1, psivel=0.2, kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,
              lim=1.4, lim_psi=0.7, goal_tol=0.02, goal_tol_psi=0.1, nv=4, t_ramp=5)
-# param = dict(vel=0.1, psivel=0.2, kp=8, kd=2, kp_psi=3, kd_psi=1,
-#              lim=2, lim_psi=1, goal_tol=0.02, goal_tol_psi=0.1, nv=4) # OK params for m2
-
 
 # obstacle avoidance parameters
 # SICK TIM 571
@@ -50,21 +47,21 @@ angle_min = -2.356
 angle_max = 2.356
 angle_res = 0.00581718
 
-param_obs = {'FK': 2,  # Force gain - PRIMARY tuning parameter
-             'g_cuv': 2,  # gradient for force curve
-             'f_lim': 5,  # force limit
-             'q_min': angle_min,  # min. angle of lidar (rad)
-             'q_max': angle_max,  # max. angle of lidar (rad)
-             'q_res': angle_res,  # resolution angle (rad)
-             'd_min': 0.05,  # minimum value output from lidar
-             'x_min': 0.35,  # minimum distance in x-axis for robot to halt (m)
-             'y_min': 0.35,  # minimum distance in y-axis for robot to halt (m)
-             'r_min': 0.35,  # minimum radius where obstacle is considered (m)
-             'r_max': 0.9,  # maximum radius where obstacle is considered (m)
-             'p_min': 5,  # number of minimum points within threshold for robot to stop
-             'd_obs': 0.001,  # magnitude between points to be considered of the same object
-             'n_obs': 3,  # min. number of points required to be considered an obstacle
-             }
+# param_obs = {'FK': 2,  # Force gain - PRIMARY tuning parameter
+#              'g_cuv': 2,  # gradient for force curve
+#              'f_lim': 5,  # force limit
+#              'q_min': angle_min,  # min. angle of lidar (rad)
+#              'q_max': angle_max,  # max. angle of lidar (rad)
+#              'q_res': angle_res,  # resolution angle (rad)
+#              'd_min': 0.05,  # minimum value output from lidar
+#              'x_min': 0.35,  # minimum distance in x-axis for robot to halt (m)
+#              'y_min': 0.35,  # minimum distance in y-axis for robot to halt (m)
+#              'r_min': 0.35,  # minimum radius where obstacle is considered (m)
+#              'r_max': 0.9,  # maximum radius where obstacle is considered (m)
+#              'p_min': 5,  # number of minimum points within threshold for robot to stop
+#              'd_obs': 0.001,  # magnitude between points to be considered of the same object
+#              'n_obs': 3,  # min. number of points required to be considered an obstacle
+#              }
 
 # setup buffers
 dtv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
@@ -127,7 +124,7 @@ def path_callback(msg):  # Manage inbound arrays of goal positions for coverage 
     flag_goal_met = False  # sets the flag when rviz nav goal button clicked
     if len(msg.poses) == 0:
         goal_array = np.array([])
-        # pub.publish(Twist())  # publish twist command
+        # pub.publish(Twist())  # publish empty twist command
         pub_velocity.publish(thruster_ctrl_msg())
         return
     goal_array = np.empty([len(msg.poses), 3])
@@ -139,9 +136,9 @@ def path_callback(msg):  # Manage inbound arrays of goal positions for coverage 
 # ----------------------------------------------------------
 
 
-def gain_callback(msg):
-    global param_obs
-    param_obs['FK'] = msg.data
+# def gain_callback(msg):
+#     global param_obs
+#     param_obs['FK'] = msg.data
 
 
 def dynReconfigCallback(config, level):
@@ -154,10 +151,11 @@ def dynReconfigCallback(config, level):
     return config
 
 # runs with lidar callback
-def lidar_callback(msg):
-    """ lidar callback """
-    global lidar_data
-    lidar_data = msg
+# ---------------------------------------- OBSTACLE removed
+# def lidar_callback(msg):
+#     """ lidar callback """
+#     global lidar_data
+#     lidar_data = msg
 
 
 # this runs when new slam output data is published and it publishes on the twist topic
@@ -180,26 +178,27 @@ def callback(data, paramf):
     # ------------------
 
     # pub = rospy.Publisher('/mallard/cmd_vel', Twist, queue_size=10)
-    twist = Twist()
+    # twist = Twist()
 
     q_now = [data.pose.orientation.x, data.pose.orientation.y, data.pose.orientation.z, data.pose.orientation.w]
 
     #  code added for obstacle avoidance
-    global param_obs, lidar_data
+    # ---------------------------------------- OBSTACLE removed
+    # global param_obs, lidar_data
 
-    if lidar_data is not None:
-        flag_obstacle_close, fobs = detect_obstacle(lidar_data, param_obs)
-        # rospy.loginfo("obstacle avoidance forces: %s", fobs)
-        # rospy.loginfo("obstacle close flag: %s", flag_obstacle_close)
+    # if lidar_data is not None:
+    #     flag_obstacle_close, fobs = detect_obstacle(lidar_data, param_obs)
+    #     # rospy.loginfo("obstacle avoidance forces: %s", fobs)
+    #     # rospy.loginfo("obstacle close flag: %s", flag_obstacle_close)
 
-    else:
-        flag_obstacle_close = False
-        fobs = (0, 0)
-    # Force obstacle avoidance to be null
-    # ---------------------------------
-    # Remove these two lines to use obstacle avoidance
-    flag_obstacle_close = False
-    fobs = (0, 0)
+    # else:
+    #     flag_obstacle_close = False
+    #     fobs = (0, 0)
+    # # Force obstacle avoidance to be null
+    # # ---------------------------------
+    # # Remove these two lines to use obstacle avoidance
+    # flag_obstacle_close = False
+    # fobs = (0, 0)
     # ----------------------------------
 
     # if it's the first run then zero is current position
@@ -212,28 +211,32 @@ def callback(data, paramf):
         q_goal = tft.quaternion_from_euler(0, 0, goal_array[n_goals, 2])
 
     # if a obstacle is to close flag is set
-    if flag_obstacle_close != flag_obstacle_prev:
-        if flag_obstacle_close:
-            t_stall = data.header.stamp.secs
-            x0 = data.pose.position.x + 1e-9
-            y0 = data.pose.position.y + 1e-9
-            q0 = q_now
-            x_goal = data.pose.position.x
-            y_goal = data.pose.position.y
-            q_goal = q_now
-            print 'STOPPING!'
-        else:
-            t_stall = data.header.stamp.secs - t_stall
-            x0 = data.pose.position.x
-            y0 = data.pose.position.y
-            q0 = q_now
-            x_goal = goal_array[n_goals, 0]
-            y_goal = goal_array[n_goals, 1]
-            q_goal = tft.quaternion_from_euler(0, 0, goal_array[n_goals, 2])
-            print 'RESUMING'
+    # ---------------------------------------- OBSTACLE removed
+    # if flag_obstacle_close != flag_obstacle_prev:
+    #     if flag_obstacle_close:
+    #         t_stall = data.header.stamp.secs
+    #         x0 = data.pose.position.x + 1e-9
+    #         y0 = data.pose.position.y + 1e-9
+    #         q0 = q_now
+    #         x_goal = data.pose.position.x
+    #         y_goal = data.pose.position.y
+    #         q_goal = q_now
+    #         print 'STOPPING!'
+    #     else:
+    #         t_stall = data.header.stamp.secs - t_stall
+    #         x0 = data.pose.position.x
+    #         y0 = data.pose.position.y
+    #         q0 = q_now
+    #         x_goal = goal_array[n_goals, 0]
+    #         y_goal = goal_array[n_goals, 1]
+    #         q_goal = tft.quaternion_from_euler(0, 0, goal_array[n_goals, 2])
+    #         print 'RESUMING'
 
     # if a goal has been met then increment the goal
-    if flag_goal_met and not flag_obstacle_close:
+
+    # ---------------------------------------- OBSTACLE removed
+    # if flag_goal_met and not flag_obstacle_close:
+    if flag_goal_met:
         x0 = goal_array[n_goals, 0]
         y0 = goal_array[n_goals, 1]
         q0 = tft.quaternion_from_euler(0, 0, goal_array[n_goals, 2])
@@ -259,6 +262,7 @@ def callback(data, paramf):
     # build difference history buffers and calculate velocities
     t_now = (data.header.stamp.secs + data.header.stamp.nsecs * 0.000000001) - t0  # time since start of goal
 
+    # 'nv' parameter comes into play here
     dtv.appendleft(t_now - tp)  # time difference vector
     dxv.appendleft(data.pose.position.x - xp)  # x difference vector
     dyv.appendleft(data.pose.position.y - yp)  # y difference vector
@@ -286,20 +290,21 @@ def callback(data, paramf):
     yf_nav = kglocal.cont_fun(data.pose.position.y, ydes, yvel, yveldes, paramf['kp'], paramf['kd'], paramf['lim'])
     psif_nav = kglocal.contpsi_fun(q_now, qdes, psivel, psiveldes, paramf['kp_psi'], paramf['kd_psi'],paramf['lim_psi'])
 
+
     # put xy forces into body frame
     f_body = kguseful.quat_rot([xf_nav, yf_nav, 0], [-q_now[0], -q_now[1], -q_now[2], q_now[3]])
 
     # print flag_obstacle_close, np.round(fobs,4)
 
-    # ------- Simulation ------------------
-    x_sim = (f_body[0] + fobs[0])*linear_scale;
-    y_sim = (f_body[1] + fobs[1])*linear_scale;
-    psi_sim = (-psif_nav)*angular_scale;
+    # ------- Simulation ---------
+    x_sim   = (f_body[0])*linear_scale
+    y_sim   = (f_body[1])*linear_scale
+    psi_sim = (-psif_nav)*angular_scale
 
-    thruster_1 = 0 + 0.5*x_sim + a_sim*psi_sim;
-    thruster_2 = 0 + 0.5*x_sim - a_sim*psi_sim;
-    thruster_3 = 0 - 0.5*y_sim + b_sim*psi_sim;
-    thruster_4 = 0 - 0.5*y_sim - b_sim*psi_sim;
+    thruster_1 = 0 + 0.5*x_sim + a_sim*psi_sim
+    thruster_2 = 0 + 0.5*x_sim - a_sim*psi_sim
+    thruster_3 = 0 - 0.5*y_sim + b_sim*psi_sim
+    thruster_4 = 0 - 0.5*y_sim - b_sim*psi_sim
     # ------- end simulation -------------
 
     # put forces into twist structure and publish
@@ -309,24 +314,23 @@ def callback(data, paramf):
     if n_safe > paramf['nv'] + 5:  # stop output while deque buffers are filling
         # pub.publish(twist)  # publish twist command
 
-        # -------- Simulation code -------- 
+        # -------- Simulation  -------- 
 
         pub_velocity.publish(thruster_ctrl_msg())
 
         # ------- end simulation -------------
 
     n_safe = n_safe + 1
-
     # if goal is met then move to next goal
-    if not flag_obstacle_close:
-        if abs(x_goal - data.pose.position.x) <= paramf['goal_tol']:
-            if abs(y_goal - data.pose.position.y) <= paramf['goal_tol']:
-                e_psi = kguseful.err_psi_fun(q_now, q_goal)
-                if abs(e_psi) <= paramf['goal_tol_psi']:
-                    if goal_array.shape[0] != n_goals + 1:  # if there are more goals
-                        print 'goal met'
-                        flag_goal_met = True  # set flag to move to next goal
-                    if goal_array.shape[0] == n_goals + 1:  # if there are more goals
+    # if not flag_obstacle_close:
+    if abs(x_goal - data.pose.position.x) <= paramf['goal_tol']:
+        if abs(y_goal - data.pose.position.y) <= paramf['goal_tol']:
+            e_psi = kguseful.err_psi_fun(q_now, q_goal)
+            if abs(e_psi) <= paramf['goal_tol_psi']:
+                if goal_array.shape[0] != n_goals + 1:  # if there are more goals
+                    print 'goal met'
+                    flag_goal_met = True  # set flag to move to next goal
+                if goal_array.shape[0] == n_goals + 1:  # if there are more goals
                         print 'final goal met - holding position'
 
     # change current to previous values
@@ -353,13 +357,6 @@ def callbackrviz(data):
     if goal_array.shape[0] != n_goals + 1:
         flag_first = True  # sets the flag when rviz nav goal button clicked
 
-        # flag_end = True
-        # rospy.loginfo("flag end: %s", flag_end)
-
-    # x_goal = data.pose.position.x  # X goal point
-    # y_goal = data.pose.position.y  # Y goal point
-    # q_goal = [data.pose.orientation.x, data.pose.orientation.y, data.pose.orientation.z, data.pose.orientation.w]
-
 
 if __name__ == '__main__':
     rospy.init_node('move_mallard', anonymous=True)  # initialise node "move_mallard"
@@ -369,8 +366,9 @@ if __name__ == '__main__':
     # ----------------------------------------
     rospy.Subscriber("/slam_out_pose", PoseStamped, callback, param)  # subscribes to topic "/slam_out_pose"
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, callbackrviz)  # subscribes to "/move_base_simple/goal"
-    rospy.Subscriber('/scan', LaserScan, lidar_callback, queue_size=1)  # Lidar raw data
-    rospy.Subscriber('/gain_tune', Float64, gain_callback, queue_size=1)
+    # ---------------------------------------- OBSTACLE removed
+    # rospy.Subscriber('/scan', LaserScan, lidar_callback, queue_size=1)  # Lidar raw data
+    # rospy.Subscriber('/gain_tune', Float64, gain_callback, queue_size=1)
     # Subscribe to array of goal poses from RVIZ interactive coverage selector
     rospy.Subscriber('/path_poses', PoseArray, path_callback, queue_size=1)
     dynrecon = Server(MtwoParamConfig, dynReconfigCallback)
