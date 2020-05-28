@@ -33,9 +33,7 @@ def proportional_angle(ang,ang_goal,ang_vel,ang_vel_goal, kp, kd, limit):
     if abs(ctrl_output) > limit:
         ctrl_output = safe_division(ctrl_output, abs(ctrl_output))*limit
         print("angular limit hit")
-
     return ctrl_output
-
 
     # psi_dir = (psi_ref - psi)/(abs(psi_ref - psi));
     # Kpa*(angError)*timeScaler_angular + Kpa_d*(angVel - angDir*desAngVel)*timeScaler_angular;

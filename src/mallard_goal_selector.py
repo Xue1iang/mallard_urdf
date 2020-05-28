@@ -172,7 +172,6 @@ def slam_callback(data, paramf):
                         print 'final goal met - holding position'
 
     #  --------- Publish goals ---------
-
     # publish goal array
     array = [goals_received, xdes,ydes,psides[2],\
              xveldes,yveldes,psiveldes]

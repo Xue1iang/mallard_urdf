@@ -12,7 +12,7 @@
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="gui" value="$(arg gz)" />
     <arg name="paused" value="true"/>
-    <arg name="world_name" value="$(find mallard_urdf)/world/pond_w_floor.world"/>
+    <arg name="world_name" value="$(find mallard_urdf)/world/large_pond.world"/>
   </include>
 
   <!-- Robot generation in Gazebo. Must be in the same name space for plugin to work -->

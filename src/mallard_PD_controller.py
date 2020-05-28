@@ -111,7 +111,7 @@ def slam_callback(msg):
     y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
     
     # ----- Simulation -----
-    # vector forces in body frame
+    # vector forces scaled in body frame
     x_sim   = (x_body_ctrl)*linear_scale
     y_sim   = (y_body_ctrl)*linear_scale
     psi_sim = (-psi_global_ctrl)*angular_scale
