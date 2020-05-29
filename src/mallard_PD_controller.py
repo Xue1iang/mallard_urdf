@@ -31,8 +31,8 @@ psi_vel_goal = 0
 # simulation variables:
 a_sim=1.0556
 b_sim=1.1955
-linear_scale=2
-angular_scale=2
+linear_scale=1
+angular_scale=1
 # inputs to simulation:
 thruster_1 = 0
 thruster_2 = 0
@@ -41,8 +41,7 @@ thruster_4 = 0
 # dictionary to store controller parameters
 param = dict(kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,lim=1.4, lim_psi=0.7)
 
-# Functions
-
+# ----- Functions -----
 
 # required to pass control forces into simulation
 def thruster_ctrl_msg():
@@ -55,7 +54,10 @@ def thruster_ctrl_msg():
     msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3]
     return msg
 
-# Publishing node: mallard_goal_selector.py, topic: /mallard/thruster_command
+
+# ------ Callbacks -----
+
+# Publishing node: mallard_goal_selector.py, topic: /mallard/goals
 def goal_callback(array):
     global goals_received, x_goal, y_goal,psi_goal
     global x_vel_goal,y_vel_goal,psi_vel_goal
