@@ -12,10 +12,6 @@ from geometry_msgs.msg import PoseStamped, PoseArray
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
-import time
-from statistics import mean,stdev
-
-
 
 # slam position and velocity variables:
 x = 0
@@ -37,9 +33,6 @@ psi_goal     = 0
 x_vel_goal   = 0
 y_vel_goal   = 0
 psi_vel_goal = 0
-# timer callback test variables:
-time_p = 0
-period_list = []
 
 # simulation variables:
 a_sim=1.0556
@@ -55,9 +48,8 @@ thruster_4 = 0
 param = dict(kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,lim=1.4, lim_psi=0.7)
 
 # ----- Functions -----
-
-# required to pass control forces into simulation
 def thruster_ctrl_msg():
+    # required to pass control forces into simulation
     global thruster_1,thruster_2,thruster_3,thruster_4
     msg = JointState()
     msg.header = Header()
@@ -69,7 +61,7 @@ def thruster_ctrl_msg():
 
 
 # ------ Callbacks -----
-
+# GOALS
 def goal_callback(array):
     # Publishing node: mallard_goal_selector.py, topic: /mallard/goals
     global goals_received, x_goal, y_goal,psi_goal
@@ -87,7 +79,7 @@ def goal_callback(array):
         y_vel_goal   = array.data[5]
         psi_vel_goal = array.data[6]
 
-
+# SLAM pose
 def slam_callback(msg):
     # Publishing node: hector_slam, topic: /slam_out_pose
     global x,y,psi,x_vel,y_vel,psi_vel # slam position and derived velocity
@@ -115,6 +107,7 @@ def slam_callback(msg):
     y_prev    = y
     psi_prev  = psi
 
+# CONTROLLER
 def control_callback(event):
     # rospy.Timer() callback trigered by Duration(event).
     # Actual control is done here. The 'event' is the rospy.Timer() duration period, can be used 
@@ -122,10 +115,9 @@ def control_callback(event):
 
     global thruster_1, thruster_2, thruster_3, thruster_4 # control forces
 
-    # ----- Control -----
     #  Get forces in global frame using PD controller
     if(goals_received == True):
-        
+         # ----- control -----        
         x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
         y_global_ctrl   = control.proportional(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
         psi_global_ctrl = control.proportional_angle(psi, psi_goal,psi_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
@@ -133,13 +125,13 @@ def control_callback(event):
         x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
         y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
         
-        # ----- Simulation -----
+        # ----- simulation -----
         # vector forces scaled in body frame
         x_sim   = (x_body_ctrl)*linear_scale
         y_sim   = (y_body_ctrl)*linear_scale
         psi_sim = (-psi_global_ctrl)*angular_scale
 
-        # thrust allocation
+        # ----- thrust allocation -----
         thruster_1 = 0 + 0.5*x_sim + a_sim*psi_sim
         thruster_2 = 0 + 0.5*x_sim - a_sim*psi_sim
         thruster_3 = 0 - 0.5*y_sim + b_sim*psi_sim
@@ -148,6 +140,7 @@ def control_callback(event):
         # Publish forces to simulation (joint_state_publisher message)
         pub_velocity.publish(thruster_ctrl_msg())
     else:
+        # ----- idle if no goals -----
         thruster_1 = 0
         thruster_2 = 0
         thruster_3 = 0
