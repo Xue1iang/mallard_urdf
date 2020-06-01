@@ -151,10 +151,9 @@ def timer_callback(event):
     if(len(period_list)>2):
         # first element in time stamp; start with second
         period_mean = mean(period_list[1:])
-        print("mean period: ",period_mean)
+        print("mean period: ","{:.5f}".format(period_mean))
         period_stdev = stdev(period_list[1:])
-        output = "{:.9f}".format(period_stdev)
-        print("std dev: ",output)
+        print("std dev: ","{:.6f}".format(period_stdev))
         # print("std devation :" + f"{period_stdev.9f}")
 
     print("period: " + str(period))
@@ -178,6 +177,6 @@ if __name__ == '__main__':
     # Subscribe to array of goal poses from RVIZ interactive coverage selector
     # dynrecon = Server(MtwoParamConfig)
 
-    rospy.Timer(rospy.Duration(0.1), timer_callback,oneshot=False)
+    rospy.Timer(rospy.Duration(0.01), timer_callback,oneshot=False)
 
     rospy.spin()
