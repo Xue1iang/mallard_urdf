@@ -12,6 +12,9 @@ from geometry_msgs.msg import PoseStamped, PoseArray
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
 
+import time
+from statistics import mean,stdev
+
 
 
 # variables for velocity calculations:
@@ -86,7 +89,7 @@ def slam_callback(msg):
         thruster_3 = 0
         thruster_4 = 0
         pub_velocity.publish(thruster_ctrl_msg())
-        print("No goals received, idle. ")
+        # print("No goals received, idle. ")
         # Turn off thrustrs and exit callback
         return
 
@@ -133,6 +136,36 @@ def slam_callback(msg):
     y_prev    = y
     psi_prev  = psi
 
+time_p = 0
+period_list = []
+def timer_callback(event):
+    global time_p,period_list
+
+    t = rospy.Time.from_sec(time.time())
+    time_now = t.to_sec() + t.to_nsec()
+
+    period = (time_now - time_p)*10**-9
+    time_p = time_now
+
+    period_list.append(period)
+    if(len(period_list)>2):
+        # first element in time stamp; start with second
+        period_mean = mean(period_list[1:])
+        print("mean period: ",period_mean)
+        period_stdev = stdev(period_list[1:])
+        output = "{:.9f}".format(period_stdev)
+        print("std dev: ",output)
+        # print("std devation :" + f"{period_stdev.9f}")
+
+    print("period: " + str(period))
+    # print("period list:", period_list)
+    
+    # print("Timer current_real: ",str(event.current_real))
+    print("------------------")
+    # print("current_real - last_real: " + str(event.current_real - event.last_real))
+    # print("Timer last_duration: " + str(event.last_duration))
+
+
 if __name__ == '__main__':
     rospy.init_node('controller', anonymous=True) 
     # PUBLISHER
@@ -144,5 +177,7 @@ if __name__ == '__main__':
     rospy.Subscriber("/mallard/goals",Float64MultiArray,goal_callback)
     # Subscribe to array of goal poses from RVIZ interactive coverage selector
     # dynrecon = Server(MtwoParamConfig)
+
+    rospy.Timer(rospy.Duration(0.1), timer_callback,oneshot=False)
 
     rospy.spin()
