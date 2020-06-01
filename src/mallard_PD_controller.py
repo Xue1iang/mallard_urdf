@@ -141,11 +141,11 @@ period_list = []
 def timer_callback(event):
     global time_p,period_list
 
+    # ----- Loop timing test, measures how precise it is -----
     t = rospy.Time.from_sec(time.time())
     time_now = t.to_sec() + t.to_nsec()
 
-    period = (time_now - time_p)*10**-9
-    time_p = time_now
+    period = (time_now - time_p)*10**-9 # convert to seconds 
 
     period_list.append(period)
     if(len(period_list)>2):
@@ -155,14 +155,8 @@ def timer_callback(event):
         period_stdev = stdev(period_list[1:])
         print("std dev: ","{:.6f}".format(period_stdev))
         # print("std devation :" + f"{period_stdev.9f}")
-
-    print("period: " + str(period))
-    # print("period list:", period_list)
-    
-    # print("Timer current_real: ",str(event.current_real))
-    print("------------------")
-    # print("current_real - last_real: " + str(event.current_real - event.last_real))
-    # print("Timer last_duration: " + str(event.last_duration))
+    time_p = time_now
+    # ----- end of test -----
 
 
 if __name__ == '__main__':
