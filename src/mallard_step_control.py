@@ -33,8 +33,15 @@ psi_goal     = 0
 x_vel_goal   = 0
 y_vel_goal   = 0
 psi_vel_goal = 0
-goal_met     = False
-goal_counter = 0
+# step control input variables:
+goal_number = 0
+loop_period = 0.1
+step_period = 2 # step interval in seconds
+step_number = step_period/loop_period
+step_counter = 0
+step_ctrl_input = 0
+step_range = 4
+
 
 # simulation variables:
 a_sim=1.0556
@@ -68,7 +75,9 @@ def goal_callback(array):
     # Publishing node: mallard_goal_selector.py, topic: /mallard/goals
     global goals_received, x_goal, y_goal,psi_goal
     global x_vel_goal,y_vel_goal,psi_vel_goal
-    global goal_counter
+    # step variables
+    global goal_number
+    
     
     # goals_received flag has always value (bool) published
     goals_received = array.data[0]
@@ -81,14 +90,19 @@ def goal_callback(array):
         x_vel_goal   = array.data[4]
         y_vel_goal   = array.data[5]
         psi_vel_goal = array.data[6]
-        goal_met     = array.data[7]
+        goal_number  = array.data[7]
 
-        if(goal_met == True):
-            print("Met first goal!")
-            goal_counter += 1    
-        else:
-            print("goal not reached...")
-        print("goal counter: " + str(goal_counter))
+
+    # if transition from 0 to 1 occured, icrement goal counter:
+    # if((goal_change_prev == False and goal_change == True) or (goal_change_prev == True and goal_change == False)):
+    #     goal_counter += 1
+    #     print("goal counter: ", goal_counter)
+    # else:
+    #     pass
+    
+    # next iteration of the loop
+   
+
 
 # SLAM pose
 def slam_callback(msg):
@@ -109,8 +123,6 @@ def slam_callback(msg):
     x_vel   = control.get_velocity(x,x_prev,time_diff)
     y_vel   = control.get_velocity(y,y_prev,time_diff)
     psi_vel = control.get_velocity(psi,psi_prev,time_diff)
-
-    # control place holder if timer_callback inactive
     
     # ----- for next iteratioon -----
     time_prev = time
@@ -123,7 +135,7 @@ def control_callback(event):
     # rospy.Timer() callback trigered by Duration(event).
     # Actual control is done here. The 'event' is the rospy.Timer() duration period, can be used 
     # for trubleshooting. To test how often is executed use: $ rostopic hz /mallard/thruster_commands.
-
+    global step_number,step_counter,step_ctrl_input,step_range
     global thruster_1, thruster_2, thruster_3, thruster_4 # control forces
 
     #  Get forces in global frame using PD controller
@@ -136,18 +148,52 @@ def control_callback(event):
         x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
         y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
 
-    #     if(joy_step_enable == true)
-    # {
-    #   if(step_enable == true)
-    #   {
-    #     if(0.55 <= x && x <= 2.85) x_global_ctrl = step_input;
-    #     else x_global_ctrl = 0;
-    #   }
-    #   else
-    #   {
-    #     x_global_ctrl = (joy_input * joy_scaler);
-    #   } 
-    # }
+        # ----- step control x-input ------
+
+        # alternating step input for given period:
+        if(step_counter >= step_number):
+            if (step_ctrl_input == 0):
+                # toggle input
+                step_ctrl_input = step_range
+            
+            else:
+                step_ctrl_input = 0
+            step_counter = 0
+        else:
+            step_counter += 1
+        
+
+        # turn step control when reached 1st goal and turn off when reached 2nd
+        if(goal_number == 1):
+            # reached first goal -> execute step
+            x_body_ctrl = step_ctrl_input
+            print("executing step...")
+            print("goal number: ", goal_number)
+        else:
+            print("proceed as normal,  goal number: ", goal_number)
+            pass
+            
+
+        # 1. if goal 1 reached real release x ctrl
+        # 2. provide delayed step control so Mallard settles
+        # 3. when goal 2. reched stop
+
+
+
+
+        # #  Step input - overwrites x_global_ctrl
+        #     if(joy_step_enable == true)
+        #     {
+        #         if(step_enable == true)
+        #         {
+        #             if(0.55 <= x && x <= 2.85) x_global_ctrl = step_input;
+        #             else x_global_ctrl = 0;
+        #         }
+        #         else
+        #         {
+        #             x_global_ctrl = (joy_input * joy_scaler);
+        #         } 
+        #     }
         
         # ----- simulation -----
         # vector forces scaled in body frame
@@ -182,6 +228,6 @@ if __name__ == '__main__':
     # SUBSCRIBER
     rospy.Subscriber("/slam_out_pose",PoseStamped,slam_callback)
     rospy.Subscriber("/mallard/goals",Float64MultiArray,goal_callback)
-    rospy.Timer(rospy.Duration(0.1), control_callback,oneshot=False)
+    rospy.Timer(rospy.Duration(loop_period), control_callback,oneshot=False)
 
     rospy.spin()

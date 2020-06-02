@@ -15,7 +15,7 @@ def proportional(pos, goal, vel, goal_vel, kp, kd, limit):
     ctrl_output = (goal - pos)*kp + (goal_vel - vel)*kd
     if abs(ctrl_output) > limit:
         ctrl_output = safe_division(ctrl_output, abs(ctrl_output))*limit
-        print("position limit hit")
+        # print("position limit hit")
     return ctrl_output
 
 def proportional_angle(ang,ang_goal,ang_vel,ang_vel_goal, kp, kd, limit):

@@ -20,6 +20,7 @@ from geometry_msgs.msg import PoseStamped, PoseArray
 # fixed parameters
 flag_first = True  # sets flag for first goal
 flag_goal_met = False  # sets the flag when rviz nav goal button clicked
+goal_change_step = False # for step controller
 flag_end = False
 goals_received = False
 t_stall = 0
@@ -90,7 +91,7 @@ def dynReconfigCallback(config, level):
 
 def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
-    global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received
+    global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received, goal_change_step
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
 
     
@@ -168,13 +169,14 @@ def slam_callback(data, paramf):
                 if goal_array.shape[0] != n_goals + 1:  # if there are more goals
                     print 'goal met'
                     flag_goal_met = True  # set flag to move to next goal
+                    goal_change_step = not goal_change_step # required for step control
                 if goal_array.shape[0] == n_goals + 1:  # if there are no more goals
                         print 'final goal met - holding position'
 
     #  --------- Publish goals ---------
     # publish goal array
     array = [goals_received, xdes,ydes,psides[2],\
-             xveldes,yveldes,psiveldes,flag_goal_met]
+             xveldes,yveldes,psiveldes,n_goals]
     data_to_send = Float64MultiArray(data = array)
     pub_goal.publish(data_to_send)
 
