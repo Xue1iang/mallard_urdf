@@ -82,13 +82,12 @@ def goal_callback(array):
         y_vel_goal   = array.data[5]
         psi_vel_goal = array.data[6]
         goal_met     = array.data[7]
+
         if(goal_met == True):
             print("Met first goal!")
-            goal_counter += 1
-            
+            goal_counter += 1    
         else:
             print("goal not reached...")
-
         print("goal counter: " + str(goal_counter))
 
 # SLAM pose

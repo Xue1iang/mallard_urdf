@@ -174,7 +174,7 @@ def slam_callback(data, paramf):
     #  --------- Publish goals ---------
     # publish goal array
     array = [goals_received, xdes,ydes,psides[2],\
-             xveldes,yveldes,psiveldes]
+             xveldes,yveldes,psiveldes,flag_goal_met]
     data_to_send = Float64MultiArray(data = array)
     pub_goal.publish(data_to_send)
 
