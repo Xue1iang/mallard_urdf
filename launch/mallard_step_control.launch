@@ -12,8 +12,8 @@
 <!-- teleop end -->
 
 <!-- Controller & SLAM -->
-<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector.py" output="screen"/>
-<node name="controller" pkg="mallard_urdf" type="mallard_PD_controller.py" output="screen"/>
+<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector_step.py" output="screen"/>
+<node name="step_controller" pkg="mallard_urdf" type="mallard_step_control.py" output="screen"/>
 
 <!-- SLAM -->
 <!-- tf1: no odom to base_link, tf2: base_link to laser - inside urdf file at mallard_main.xacro  -->

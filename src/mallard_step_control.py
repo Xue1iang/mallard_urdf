@@ -81,6 +81,14 @@ def goal_callback(array):
         x_vel_goal   = array.data[4]
         y_vel_goal   = array.data[5]
         psi_vel_goal = array.data[6]
+        goal_met     = array.data[7]
+
+        if(goal_met == True):
+            print("Met first goal!")
+            goal_counter += 1    
+        else:
+            print("goal not reached...")
+        print("goal counter: " + str(goal_counter))
 
 # SLAM pose
 def slam_callback(msg):
@@ -127,6 +135,19 @@ def control_callback(event):
         # convert into body frame:
         x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
         y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
+
+    #     if(joy_step_enable == true)
+    # {
+    #   if(step_enable == true)
+    #   {
+    #     if(0.55 <= x && x <= 2.85) x_global_ctrl = step_input;
+    #     else x_global_ctrl = 0;
+    #   }
+    #   else
+    #   {
+    #     x_global_ctrl = (joy_input * joy_scaler);
+    #   } 
+    # }
         
         # ----- simulation -----
         # vector forces scaled in body frame
@@ -149,6 +170,9 @@ def control_callback(event):
         thruster_3 = 0
         thruster_4 = 0
         pub_velocity.publish(thruster_ctrl_msg())
+
+    
+
 
 if __name__ == '__main__':
     rospy.init_node('controller', anonymous=True) 

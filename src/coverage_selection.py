@@ -483,7 +483,6 @@ class areaMarker(object):
             pathPose.pose.position.y = position[1]
             pathPose.pose.position.z = position[2]
 
-
             pose = tf2_geometry_msgs.do_transform_pose(pathPose, frameTransform)
 
             self.poseArray.poses.append(pose.pose)
