@@ -36,9 +36,12 @@ psi_vel_goal = 0
 # step control input variables:
 goal_number = 0
 loop_period = 0.1
-step_period = 2 # step interval in seconds
-step_number = step_period/loop_period
+step_seconds = 3 # step interval in seconds
+step_number = step_seconds/loop_period
+wait_seconds = 10
+wait_number = wait_seconds/loop_period # seconds to wait/loop period = number of loops
 step_counter = 0
+wait_counter = 0 
 step_ctrl_input = 0
 step_range = 4
 
@@ -92,7 +95,6 @@ def goal_callback(array):
         psi_vel_goal = array.data[6]
         goal_number  = array.data[7]
 
-
     # if transition from 0 to 1 occured, icrement goal counter:
     # if((goal_change_prev == False and goal_change == True) or (goal_change_prev == True and goal_change == False)):
     #     goal_counter += 1
@@ -102,8 +104,6 @@ def goal_callback(array):
     
     # next iteration of the loop
    
-
-
 # SLAM pose
 def slam_callback(msg):
     # Publishing node: hector_slam, topic: /slam_out_pose
@@ -135,7 +135,7 @@ def control_callback(event):
     # rospy.Timer() callback trigered by Duration(event).
     # Actual control is done here. The 'event' is the rospy.Timer() duration period, can be used 
     # for trubleshooting. To test how often is executed use: $ rostopic hz /mallard/thruster_commands.
-    global step_number,step_counter,step_ctrl_input,step_range
+    global step_number,step_counter,step_ctrl_input,step_range,wait_counter,wait_number,loop_period,wait_seconds
     global thruster_1, thruster_2, thruster_3, thruster_4 # control forces
 
     #  Get forces in global frame using PD controller
@@ -149,31 +149,32 @@ def control_callback(event):
         y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
 
         # ----- step control x-input ------
-
-        
-        
-
         # turn step control when reached 1st goal and turn off when reached 2nd
         if(goal_number == 1):
+            # settle first for step_period time and then go:
+            if(wait_counter<wait_number):
+                x_body_ctrl = 0
+                # time_elapsed = wait_counter*loop_period
+                print("settling down for: ",str(wait_seconds)," seconds; time elapsed:",str(wait_counter*loop_period)," seconds")
+                wait_counter +=1 # counter does not get zeroed
             # reached first goal -> execute step
             # alternating step input for given period:
-            if(step_counter >= step_number):
-                if (step_ctrl_input == 0):
-                    # toggle input
-                    step_ctrl_input = step_range
-
-                else:
-                    step_ctrl_input = 0
-                step_counter = 0
             else:
-                step_counter += 1
-
-            x_body_ctrl = step_ctrl_input
-            print("executing step..."," step input: ", step_ctrl_input)
-        
+                if(step_counter >= step_number):
+                    if (step_ctrl_input == 0):
+                        # toggle input
+                        step_ctrl_input = step_range
+                    else:
+                        step_ctrl_input = 0
+                    step_counter = 0
+                else:
+                    step_counter += 1
+                x_body_ctrl = step_ctrl_input
+                print("step input: ", step_ctrl_input)
         else:
-            print("proceed as normal,  goal number: ", goal_number)
+            print(" --- proceed to next goal: ", goal_number)
             pass
+        # ----- end of step control -----
         
         # ----- simulation -----
         # vector forces scaled in body frame

@@ -45,7 +45,7 @@ goal_array = kgstripes.stripes(sd, gap, x1, x2, y1, y2, psi)
 goal_array = np.array([])
 
 # control parameters
-param = dict(vel=0.1, psivel=0.2, goal_tol=0.02, goal_tol_psi=0.1,  nv=4, t_ramp=5)
+param = dict(vel=0.1, psivel=0.2, goal_tol=0.05, goal_tol_psi=0.1,  nv=4, t_ramp=5)
 
 dtv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
 dxv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
