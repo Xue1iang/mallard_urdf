@@ -62,10 +62,10 @@ def thruster_ctrl_msg():
     global thruster_1,thruster_2,thruster_3,thruster_4
     msg = JointState()
     msg.header = Header()
-    msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right']
+    msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right','x_position']
     msg.position = []
     msg.velocity = []
-    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3]
+    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3,x]
     return msg
 
 
@@ -150,50 +150,30 @@ def control_callback(event):
 
         # ----- step control x-input ------
 
-        # alternating step input for given period:
-        if(step_counter >= step_number):
-            if (step_ctrl_input == 0):
-                # toggle input
-                step_ctrl_input = step_range
-            
-            else:
-                step_ctrl_input = 0
-            step_counter = 0
-        else:
-            step_counter += 1
+        
         
 
         # turn step control when reached 1st goal and turn off when reached 2nd
         if(goal_number == 1):
             # reached first goal -> execute step
+            # alternating step input for given period:
+            if(step_counter >= step_number):
+                if (step_ctrl_input == 0):
+                    # toggle input
+                    step_ctrl_input = step_range
+
+                else:
+                    step_ctrl_input = 0
+                step_counter = 0
+            else:
+                step_counter += 1
+
             x_body_ctrl = step_ctrl_input
-            print("executing step...")
-            print("goal number: ", goal_number)
+            print("executing step..."," step input: ", step_ctrl_input)
+        
         else:
             print("proceed as normal,  goal number: ", goal_number)
             pass
-            
-
-        # 1. if goal 1 reached real release x ctrl
-        # 2. provide delayed step control so Mallard settles
-        # 3. when goal 2. reched stop
-
-
-
-
-        # #  Step input - overwrites x_global_ctrl
-        #     if(joy_step_enable == true)
-        #     {
-        #         if(step_enable == true)
-        #         {
-        #             if(0.55 <= x && x <= 2.85) x_global_ctrl = step_input;
-        #             else x_global_ctrl = 0;
-        #         }
-        #         else
-        #         {
-        #             x_global_ctrl = (joy_input * joy_scaler);
-        #         } 
-        #     }
         
         # ----- simulation -----
         # vector forces scaled in body frame
