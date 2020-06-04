@@ -44,6 +44,13 @@ step_counter = 0
 wait_counter = 0 
 step_ctrl_input = 0
 step_range = 4
+# variables for overriding goals
+x_goal_0       = 0
+y_goal_0       = 0
+psi_goal_0     = 0
+x_vel_goal_0   = 0
+y_vel_goal_0   = 0
+psi_vel_goal_0 = 0
 
 
 # simulation variables:
@@ -135,31 +142,42 @@ def control_callback(event):
     # rospy.Timer() callback trigered by Duration(event).
     # Actual control is done here. The 'event' is the rospy.Timer() duration period, can be used 
     # for trubleshooting. To test how often is executed use: $ rostopic hz /mallard/thruster_commands.
-    global step_number,step_counter,step_ctrl_input,step_range,wait_counter,wait_number,loop_period,wait_seconds
     global thruster_1, thruster_2, thruster_3, thruster_4 # control forces
+    # variables for step control:
+    global x_goal,y_goal,psi_goal,x_vel_goal,y_vel_goal,psi_vel_goal
+    global x_goal_0,y_goal_0,psi_goal_0,x_vel_goal_0,y_vel_goal_0,psi_vel_goal_0
+    global step_number,step_counter,step_ctrl_input,step_range,wait_counter,wait_number,loop_period,wait_seconds
 
     #  Get forces in global frame using PD controller
     if(goals_received == True):
-         # ----- control -----        
-        x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
-        y_global_ctrl   = control.proportional(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
-        psi_global_ctrl = control.proportional_angle(psi, psi_goal,psi_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
-        # convert into body frame:
-        x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
-        y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
 
-        # ----- step control x-input ------
-        # turn step control when reached 1st goal and turn off when reached 2nd
+    # ----- step control x-input ------
+        #  retain goal o:
+        if(goal_number == 0):
+            x_goal_0       = x_goal
+            y_goal_0       = y_goal
+            psi_goal_0     = psi_goal
+            x_vel_goal_0   = x_vel_goal
+            y_vel_goal_0   = y_vel_goal
+            psi_vel_goal_0 = psi_vel_goal
+        # sttle down and stert step function when reached 1st goal:
         if(goal_number == 1):
             # settle first for step_period time and then go:
             if(wait_counter<wait_number):
-                x_body_ctrl = 0
+                # override goals with starting goal and wait 10 secs to settle down:
+                x_goal       = x_goal_0
+                y_goal       = y_goal_0
+                psi_goal     = psi_goal_0
+                x_vel_goal   = x_vel_goal_0
+                y_vel_goal   = y_vel_goal_0
+                psi_vel_goal = psi_vel_goal_0
                 # time_elapsed = wait_counter*loop_period
                 print("settling down for: ",str(wait_seconds)," seconds; time elapsed:",str(wait_counter*loop_period)," seconds")
                 wait_counter +=1 # counter does not get zeroed
             # reached first goal -> execute step
             # alternating step input for given period:
             else:
+                # execute step function
                 if(step_counter >= step_number):
                     if (step_ctrl_input == 0):
                         # toggle input
@@ -169,13 +187,24 @@ def control_callback(event):
                     step_counter = 0
                 else:
                     step_counter += 1
-                x_body_ctrl = step_ctrl_input
+                
                 print("step input: ", step_ctrl_input)
         else:
+            wait_counter = 0
             print(" --- proceed to next goal: ", goal_number)
             pass
-        # ----- end of step control -----
+    # ----- end of step control -----
+         # ----- control -----        
+        x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
+        y_global_ctrl   = control.proportional(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
+        psi_global_ctrl = control.proportional_angle(psi, psi_goal,psi_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
+        # convert into body frame:
+        x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
+        y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
         
+        if(goal_number==1 and (wait_counter>=wait_number)):
+            print("executing step")
+            x_body_ctrl = step_ctrl_input
         # ----- simulation -----
         # vector forces scaled in body frame
         x_sim   = (x_body_ctrl)*linear_scale
