@@ -72,12 +72,11 @@ def thruster_ctrl_msg():
     global thruster_1,thruster_2,thruster_3,thruster_4
     msg = JointState()
     msg.header = Header()
-    msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right','x_position']
+    msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right','x_pos','y_pos','psi_pos']
     msg.position = []
     msg.velocity = []
-    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3,x]
+    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3,x,y,psi]
     return msg
-
 
 # ------ Callbacks -----
 # GOALS
@@ -87,13 +86,12 @@ def goal_callback(array):
     global x_vel_goal,y_vel_goal,psi_vel_goal
     # step variables
     global goal_number
-    
-    
+
     # goals_received flag has always value (bool) published
     goals_received = array.data[0]
 
     # Get goal values if data is available
-    if (goals_received == True):
+    if(goals_received == True):
         x_goal       = array.data[1]
         y_goal       = array.data[2]
         psi_goal     = array.data[3]
