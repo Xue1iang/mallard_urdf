@@ -27,6 +27,17 @@ x_prev = 0
 y_prev = 0
 psi_prev = 0
 
+x_slam = 0
+y_slam = 0
+psi_slam = 0
+# map frame pose and velocities:
+xm = 0 
+ym = 0
+psim = 0
+xm_vel = 0
+ym_vel = 0
+psim_vel = 0
+
 # varaibles to store goals:
 goals_received = False
 x_goal       = 0
@@ -77,10 +88,10 @@ def thruster_ctrl_msg():
     global thruster_1,thruster_2,thruster_3,thruster_4
     msg = JointState()
     msg.header = Header()
-    msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right','x_pos','y_pos','psi_pos']
+    msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right','xm','xm_vel']
     msg.position = []
     msg.velocity = []
-    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3,x,y,psi]
+    msg.effort = [thruster_1,thruster_2,thruster_4,thruster_3,xm,xm_vel]
     return msg
 
 # ------ Callbacks -----
@@ -117,67 +128,73 @@ def goal_callback(array):
 # SLAM pose
 def slam_callback(msg):
     # Publishing node: hector_slam, topic: /slam_out_pose
-    global x,y,psi,x_vel,y_vel,psi_vel # slam position and derived velocity
-    global time_prev,x_prev,y_prev,psi_prev # variables for next iteration
+    # global x,y,psi,x_vel,y_vel,psi_vel # slam position and derived velocity
+    # global time_prev,x_prev,y_prev,psi_prev # variables for next iteration
+    global x_slam,y_slam,psi_slam
 
     # ----- Position and Velocity -----
     # Get current position, orientation and time:
-    x   = msg.pose.position.x
-    y   = msg.pose.position.y
-    psi = tft.euler_from_quaternion([msg.pose.orientation.x,msg.pose.orientation.y,\
+    x_slam   = msg.pose.position.x
+    y_slam   = msg.pose.position.y
+    psi_slam = tft.euler_from_quaternion([msg.pose.orientation.x,msg.pose.orientation.y,\
                                      msg.pose.orientation.z,msg.pose.orientation.w])[2]
-    time = (msg.header.stamp.secs + msg.header.stamp.nsecs * 0.000000001)
+    # time = (msg.header.stamp.secs + msg.header.stamp.nsecs * 0.000000001)
 
     # Derive velocities from slam data:
-    time_diff = time - time_prev
-    x_vel   = control.get_velocity(x,x_prev,time_diff)
-    y_vel   = control.get_velocity(y,y_prev,time_diff)
-    psi_vel = control.get_velocity(psi,psi_prev,time_diff)
+    # time_diff = time - time_prev
+    # x_vel   = control.get_velocity(x,x_prev,time_diff)
+    # y_vel   = control.get_velocity(y,y_prev,time_diff)
+    # psi_vel = control.get_velocity(psi,psi_prev,time_diff)
     
     # ----- for next iteratioon -----
-    time_prev = time
-    x_prev    = x
-    y_prev    = y
-    psi_prev  = psi
+    # time_prev = time
+    # x_prev    = x
+    # y_prev    = y
+    # psi_prev  = psi
 
 def gazebo_callback(ModelStates):
     # Publishing node: hector_slam, topic: /slam_out_pose
-    global x,y,psi,x_vel,y_vel,psi_vel # slam position and derived velocity
-    global registered_initial,x0
+    global x,y,psi,x_vel,y_vel,psi_vel # pose and velocity of Mallard as seen in gazebo frame
+    global xm,ym,psim,xm_vel,ym_vel,psim_vel # pose and velocity as seen in map frame
+    global x0,y0,psi0 # variables to store initial /map frame coords
 
     # ModelStates has two models: name: [test_pond_floor, mallard]
     # to get the pose, you need to refer to second [1] elemnt in the list: 
     # print(ModelStates.pose[1].position.x)
-    # get initial position of Mallard in Gazebo frame
-    # this is where /map is
 
     # ----- Position and Velocity -----
-    # get current position frome pose:
+    # position update:
     x   = ModelStates.pose[1].position.x
     y   = ModelStates.pose[1].position.y
     psi = tft.euler_from_quaternion([ModelStates.pose[1].orientation.x,ModelStates.pose[1].orientation.y,\
                                      ModelStates.pose[1].orientation.z,ModelStates.pose[1].orientation.w])[2]
 
-    # get current velocity from twist:
+    # velocity update:
     x_vel   = ModelStates.twist[1].linear.x
     y_vel   = ModelStates.twist[1].linear.y
     psi_vel = ModelStates.twist[1].angular.z
 
-    # if registered first value but initial x0 id still empty:
+    # ----- Transform Gazebo -> /map frame (from hector_slam) -----
+    # Coverage selection and goals are in Hector_slam map frame. To match coordiantes
+    # the updated pose and velocities from Gazebo frame need to be converted to /map fame
+
+    # initial /map position when rviz and slam starts:
     if(x != 0 and x0 == 0):
         x0   = x
         y0   = y
         psi0 = psi
-        registered_initial = True
-        print("First registration")
 
-    print("Initial", registered_initial)
-    print("x:   ",x)
-    print("y:   ",y)
-    print("psi: ",psi)
-    print("\n----------\n")
-    
-
+    # transform gazebo pose to /map frame:
+    # [x',y'] = Rt[x - x0,y - y0]; Rt -rotation transposed
+    xm   =  (x-x0)*math.cos(psi0) + (y-y0)*math.sin(psi0)
+    ym   = -(x-x0)*math.sin(psi0) + (y-y0)*math.cos(psi0)
+    psim =  psi
+    # transform gazebo velocity to /map frame:
+    # [x_vel',y_vel'] = Rt[x_vel,y_vel]
+    xm_vel   =  x_vel*math.cos(psi0) + y_vel*math.sin(psi0)
+    ym_vel   = -x_vel*math.sin(psi0) + y_vel*math.cos(psi0)
+    psim_vel =  psi_vel
+    # send these to controller as current pose and velocity vectors
 
 # CONTROLLER
 def control_callback(event):
@@ -194,7 +211,7 @@ def control_callback(event):
     if(goals_received == True):
 
     # ----- step control x-input ------
-        #  retain goal o:
+        #  retain goal 0:
         if(goal_number == 0):
             x_goal_0       = x_goal
             y_goal_0       = y_goal
@@ -202,7 +219,7 @@ def control_callback(event):
             x_vel_goal_0   = x_vel_goal
             y_vel_goal_0   = y_vel_goal
             psi_vel_goal_0 = psi_vel_goal
-        # sttle down and stert step function when reached 1st goal:
+        # settle down and start step function when reached 1st goal:
         if(goal_number == 1):
             # settle first for step_period time and then go:
             if(wait_counter<wait_number):
@@ -236,14 +253,21 @@ def control_callback(event):
             print(" --- proceed to next goal: ", goal_number)
             pass
     # ----- end of step control -----
-         # ----- control -----        
-        x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
-        y_global_ctrl   = control.proportional(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
-        psi_global_ctrl = control.proportional_angle(psi, psi_goal,psi_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
+         # ----- control (slam frame) -----        
+        # x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
+        # y_global_ctrl   = control.proportional(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
+        # psi_global_ctrl = control.proportional_angle(psi, psi_goal,psi_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
+
+        # ----- control (gazebo frame) -----
+        x_global_ctrl   = control.proportional(xm, x_goal, xm_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
+        y_global_ctrl   = control.proportional(ym, y_goal, ym_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
+        psi_global_ctrl = control.proportional_angle(psim, psi_goal,psim_vel,psi_vel_goal, param['kp_psi'], param['kd_psi'], param['lim_psi'])
+
         # convert into body frame:
         x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
         y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
         
+        # ovverite x-body control with step function:
         if(goal_number==1 and (wait_counter>=wait_number)):
             print("executing step")
             x_body_ctrl = step_ctrl_input
@@ -277,7 +301,7 @@ if __name__ == '__main__':
     # PUBLISHER
     pub_velocity = rospy.Publisher('/mallard/thruster_command',JointState,queue_size=10)
 
-    # SUBSCRIBER
+    # # SUBSCRIBER
     # rospy.Subscriber("/slam_out_pose",PoseStamped,slam_callback)
     rospy.Subscriber("/gazebo/model_states",ModelStates,gazebo_callback) #for accuarate position and velocity
     rospy.Subscriber("/mallard/goals",Float64MultiArray,goal_callback)
