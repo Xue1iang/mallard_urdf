@@ -71,7 +71,7 @@
           <compensation>1.2</compensation>
           <origin xyz= "0 0 0"/>
           <limit radius="0.1"/>
-          <damping xyz="120 60 60" rpy="2 2 2"/>
+          <damping xyz="60 60 60" rpy="2 2 2"/>
       </buoyancy>
   </link>
 
@@ -80,12 +80,12 @@
 		lidar_name="laser"
     mass="0.27"
 		lidar_topic="scan"
-		update_rate="15">
+		update_rate="30"> <!-- for sick 571 it is 15Hz-->
 		<origin xyz="0.225 0 0.194"/>
 	</xacro:lidar> 
 
   <!-- Ballast -->
-  <xacro:ballast name="ballast_1" mass="0.14" xyz=" 0.225 -0.25 0.076" rpy="${PI/2} 0 0"/>
+  <xacro:ballast name="ballast_1" mass="0.12" xyz=" 0.225 -0.25 0.076" rpy="${PI/2} 0 0"/>
   <xacro:ballast name="ballast_2" mass="0.02" xyz="-0.225 -0.25 0.076" rpy="${PI/2} 0 0"/>
 
   <!-- Forward thrusters -->

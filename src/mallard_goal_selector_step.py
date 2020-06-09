@@ -94,8 +94,6 @@ def slam_callback(data, paramf):
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received, goal_change_step
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
 
-    
-
     # if no goal positions exist, then exit this callback!!!
     if len(goal_array) == 0:
         data_to_send = Float64MultiArray(data = [goals_received])

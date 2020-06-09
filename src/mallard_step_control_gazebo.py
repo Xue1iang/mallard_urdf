@@ -56,7 +56,7 @@ wait_number = wait_seconds/loop_period # seconds to wait/loop period = number of
 step_counter = 0
 wait_counter = 0 
 step_ctrl_input = 0
-step_range = 4
+step_range = 1
 
 x0 = 0
 registered_initial = False
@@ -267,10 +267,14 @@ def control_callback(event):
         x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
         y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
         
-        # ovverite x-body control with step function:
+        # override x-body control with step function:
         if(goal_number==1 and (wait_counter>=wait_number)):
             print("executing step")
             x_body_ctrl = step_ctrl_input
+            # for open loop (no correction):
+            # y_body_ctrl = 0
+            # psi_global_ctrl = 0
+
         # ----- simulation -----
         # vector forces scaled in body frame
         x_sim   = (x_body_ctrl)*linear_scale
