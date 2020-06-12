@@ -49,7 +49,7 @@ psi_vel_goal = 0
 # step control input variables:
 goal_number = 0
 loop_period = 0.1
-step_seconds = 3 # step interval in seconds
+step_seconds = 10 # step interval in seconds
 step_number = step_seconds/loop_period
 wait_seconds = 10
 wait_number = wait_seconds/loop_period # seconds to wait/loop period = number of loops

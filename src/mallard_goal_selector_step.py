@@ -201,7 +201,7 @@ if __name__ == '__main__':
     rospy.init_node('goal_selector', anonymous=True)  # initialise node "move_mallard"
     # pub_goal = rospy.Publisher('/mallard/goals',PoseStamped,queue_size=10)
     pub_goal = rospy.Publisher('/mallard/goals',Float64MultiArray,queue_size=10)
-    rospy.Subscriber("/slam_out_pose", PoseStamped, slam_callback, param)  # subscribes to topic "/slam_out_pose"
+    rospy.Subscriber("/slam_out_pose", PoseStamped, slam_callback, param) 
     rospy.Subscriber('/path_poses', PoseArray, path_callback, queue_size=1)
     # Gets new sets of goals
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, callbackrviz) 
