@@ -50,14 +50,14 @@ psi_vel_goal = 0
 # step control input variables:
 goal_number = 0
 loop_period = 0.1
-step_seconds = 10 # step interval in seconds
-step_number = step_seconds/loop_period
+step_seconds = 1 # step interval in seconds
+# step_number = step_seconds/loop_period
 wait_seconds = 10 #settling period, executed only once
 wait_number = wait_seconds/loop_period # seconds to wait/loop period = number of loops
 step_counter = 0
 wait_counter = 0 
 step_ctrl_input = 0
-step_range = 0.5
+step_range = 1
 
 x0 = 0
 registered_initial = False
@@ -212,6 +212,7 @@ def control_callback(event):
     if(goals_received == True):
 
     # ----- step control x-input ------
+        
         #  retain goal 0:
         if(goal_number == 0):
             x_goal_0       = x_goal
@@ -239,6 +240,7 @@ def control_callback(event):
             else:
                 # execute step function if it passed the period (step_seconds/loop_period)
                 # swpas from 0 to 1 or 1 to 0, after period
+                step_number = step_seconds/loop_period
                 if(step_counter >= step_number):
                     if (step_ctrl_input == 0):
                         # toggle input
@@ -248,9 +250,8 @@ def control_callback(event):
                     step_counter = 0
                     # apply randomised period each time it swaps
                     # between 2 to 10 seconds
-                    step_seconds = randint(2,10)
-                    step_number = step_seconds/loop_period
-                    
+                    step_seconds = randint(1,5)
+                    # step_number = step_seconds/loop_period
                 else:
                     step_counter += 1
                 
