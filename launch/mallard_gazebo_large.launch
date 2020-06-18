@@ -3,9 +3,9 @@
   <!-- Find model and set other parameters -->
   <arg name="model" default="$(find mallard_urdf)/urdf/mallard_main.xacro"/>
   <arg name="use_sim_time" default="true"/>
-  <arg name="gui" default="true"/>
-  <arg name="gz" default="true"/>
-  <arg name="headless" default="false"/>
+  <arg name="gui" default="false"/>
+  <arg name="headless" default="true"/>
+  <arg name="gz" default="false"/>
   <arg name="debug" default="false"/>
 
   <!-- Gazebo world with desired characteristics as world_name -->

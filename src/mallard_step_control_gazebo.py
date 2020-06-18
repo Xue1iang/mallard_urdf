@@ -13,6 +13,7 @@ from gazebo_msgs.msg import ModelStates,ModelState
 
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Header
+from random import randint
 
 
 # slam position and velocity variables:
@@ -51,12 +52,12 @@ goal_number = 0
 loop_period = 0.1
 step_seconds = 10 # step interval in seconds
 step_number = step_seconds/loop_period
-wait_seconds = 10
+wait_seconds = 10 #settling period, executed only once
 wait_number = wait_seconds/loop_period # seconds to wait/loop period = number of loops
 step_counter = 0
 wait_counter = 0 
 step_ctrl_input = 0
-step_range = 1
+step_range = 0.5
 
 x0 = 0
 registered_initial = False
@@ -205,7 +206,7 @@ def control_callback(event):
     # variables for step control:
     global x_goal,y_goal,psi_goal,x_vel_goal,y_vel_goal,psi_vel_goal
     global x_goal_0,y_goal_0,psi_goal_0,x_vel_goal_0,y_vel_goal_0,psi_vel_goal_0
-    global step_number,step_counter,step_ctrl_input,step_range,wait_counter,wait_number,loop_period,wait_seconds
+    global step_number,step_counter,step_ctrl_input,step_range,wait_counter,wait_number,loop_period,wait_seconds, step_seconds
 
     #  Get forces in global frame using PD controller
     if(goals_received == True):
@@ -236,7 +237,8 @@ def control_callback(event):
             # reached first goal -> execute step
             # alternating step input for given period:
             else:
-                # execute step function
+                # execute step function if it passed the period (step_seconds/loop_period)
+                # swpas from 0 to 1 or 1 to 0, after period
                 if(step_counter >= step_number):
                     if (step_ctrl_input == 0):
                         # toggle input
@@ -244,10 +246,16 @@ def control_callback(event):
                     else:
                         step_ctrl_input = 0
                     step_counter = 0
+                    # apply randomised period each time it swaps
+                    # between 2 to 10 seconds
+                    step_seconds = randint(2,10)
+                    step_number = step_seconds/loop_period
+                    
                 else:
                     step_counter += 1
                 
                 print("step input: ", step_ctrl_input)
+                print("Now the step_seconds: ",step_seconds," ; step_number: ", step_number)
         else:
             wait_counter = 0
             print(" --- proceed to next goal: ", goal_number)

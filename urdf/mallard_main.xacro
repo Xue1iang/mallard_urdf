@@ -65,14 +65,21 @@
 
       <!-- The <limit> tag indicates where the buoyancy force 
       begins to decrease when approaching the water surface -->
+      <!-- <fluid> -->
+      <!-- <density>1</density> -->
       <buoyancy>
           <!-- Compensation coefficient is buoyancy force to weight ratio. Mallard
                buoyancy force is 11.52kg, weight is10.5kg.   -->
           <compensation>1.2</compensation>
           <origin xyz= "0 0 0"/>
           <limit radius="0.1"/>
-          <damping xyz="60 60 60" rpy="2 2 2"/>
+          <damping xyz="20 20 60" rpy="2 2 2"/>
       </buoyancy>
+      <!-- <hydrodynamics>
+            <drag xyz="1 1 0.1" rpy="2 2 2" type="linear"/>
+            <drag xyz="2 2 60" rpy="2 2 2"/>
+      </hydrodynamics>   -->
+      <!-- </fluid> -->
   </link>
 
   <xacro:lidar
