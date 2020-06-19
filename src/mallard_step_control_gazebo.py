@@ -250,7 +250,7 @@ def control_callback(event):
                     step_counter = 0
                     # apply randomised period each time it swaps
                     # between 2 to 10 seconds
-                    step_seconds = randint(2,7)
+                    step_seconds = randint(1,10)
                     # step_number = step_seconds/loop_period
                 else:
                     step_counter += 1
