@@ -23,6 +23,8 @@ flag_goal_met = False  # sets the flag when rviz nav goal button clicked
 goal_change_step = False # for step controller
 flag_end = False
 goals_received = False
+
+
 t_stall = 0
 n_goals = 0
 n_safe = 1
@@ -93,6 +95,9 @@ def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received, goal_change_step
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
+    
+
+    
 
     # if no goal positions exist, then exit this callback!!!
     if len(goal_array) == 0:
@@ -173,8 +178,12 @@ def slam_callback(data, paramf):
 
     #  --------- Publish goals ---------
     # publish goal array
+    
+    
+    goal_number = n_goals
+
     array = [goals_received, xdes,ydes,psides[2],\
-             xveldes,yveldes,psiveldes,n_goals]
+             xveldes,yveldes,psiveldes,goal_number]
     data_to_send = Float64MultiArray(data = array)
     pub_goal.publish(data_to_send)
 

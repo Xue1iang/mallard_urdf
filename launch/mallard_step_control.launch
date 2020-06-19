@@ -12,7 +12,7 @@
 <!-- teleop end -->
 
 <!-- Controller & SLAM -->
-<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector_step.py" />
+<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector_step.py"/>
 <!-- <node name="step_controller" pkg="mallard_urdf" type="mallard_step_control.py" output="screen"/> -->
 <node name="step_controller" pkg="mallard_urdf" type="mallard_step_control_gazebo.py" output="screen"/>
 
@@ -31,7 +31,8 @@
         
         <!-- Map size / start point -->
         <param name="map_resolution" value="0.025"/>
-        <param name="map_size" value="1024"/>
+        <!-- <param name="map_size" value="1024"/> -->
+        <param name="map_size" value="2048"/>
         <param name="map_start_x" value="0.5"/>
         <param name="map_start_y" value="0.5" />
         <param name="map_multi_res_levels" value="2" />

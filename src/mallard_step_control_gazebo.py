@@ -52,7 +52,7 @@ goal_number = 0
 loop_period = 0.1
 step_seconds = 1 # step interval in seconds
 # step_number = step_seconds/loop_period
-wait_seconds = 10 #settling period, executed only once
+wait_seconds = 5 #settling period, executed only once
 wait_number = wait_seconds/loop_period # seconds to wait/loop period = number of loops
 step_counter = 0
 wait_counter = 0 
@@ -250,7 +250,7 @@ def control_callback(event):
                     step_counter = 0
                     # apply randomised period each time it swaps
                     # between 2 to 10 seconds
-                    step_seconds = randint(1,5)
+                    step_seconds = randint(2,7)
                     # step_number = step_seconds/loop_period
                 else:
                     step_counter += 1
@@ -283,6 +283,13 @@ def control_callback(event):
             # for open loop (no correction):
             # y_body_ctrl = 0
             # psi_global_ctrl = 0
+        elif(goal_number>=2):
+            x_body_ctrl = 0
+            y_body_ctrl = 0
+            psi_global_ctrl = 0
+            print("Finished! Mallard is idling.")
+        
+        print("Goal num: ", goal_number)
 
         # ----- simulation -----
         # vector forces scaled in body frame
