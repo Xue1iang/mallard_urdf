@@ -15,6 +15,7 @@ def velramp(t, velabs, xy0, xyg, tr):
     d = xyg-xy0
     vel = velabs*kguseful.safe_div(d, abs(d))  # avoid zero division stability
     a = vel/tr
+    print("acceleration: ", a)
     tv = kguseful.safe_div((d-tr*vel), vel)
     if tv > 0:
         if t <= tr:
