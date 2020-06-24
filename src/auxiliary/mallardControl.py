@@ -35,5 +35,10 @@ def proportional_angle(ang,ang_goal,ang_vel,ang_vel_goal, kp, kd, limit):
         print("angular limit hit")
     return ctrl_output
 
-    # psi_dir = (psi_ref - psi)/(abs(psi_ref - psi));
-    # Kpa*(angError)*timeScaler_angular + Kpa_d*(angVel - angDir*desAngVel)*timeScaler_angular;
+# Functions for model based control
+def acc_ctrl(pos, goal, vel, goal_vel,acc, kp, kd, limit):
+    ctrl_output = acc + (goal - pos)*kp + (goal_vel - vel)*kd
+    if abs(ctrl_output) > limit:
+        ctrl_output = safe_division(ctrl_output, abs(ctrl_output))*limit
+        # print("position limit hit")
+    return ctrl_output

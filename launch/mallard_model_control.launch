@@ -13,7 +13,7 @@
 
 <!-- Controller & SLAM -->
 <node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector.py" output="screen"/>
-<node name="controller" pkg="mallard_urdf" type="mallard_PD_controller.py" output="screen"/>
+<node name="controller" pkg="mallard_urdf" type="mallard_model_controller.py" output="screen"/>
 
 <!-- SLAM -->
 <!-- tf1: no odom to base_link, tf2: base_link to laser - inside urdf file at mallard_main.xacro  -->

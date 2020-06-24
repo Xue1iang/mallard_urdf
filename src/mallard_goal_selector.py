@@ -141,8 +141,9 @@ def slam_callback(data, paramf):
     # GOALS - get desired linear positions and velocities
     xvelmax = abs(kguseful.safe_div((x_goal-x0), t_goal))
     yvelmax = abs(kguseful.safe_div((y_goal-y0), t_goal))
-    xdes, xveldes = kglocal.velramp(t_now, xvelmax, x0, x_goal, param['t_ramp'])
-    ydes, yveldes = kglocal.velramp(t_now, yvelmax, y0, y_goal, param['t_ramp'])
+    xdes, xveldes,ax = kglocal.velramp(t_now, xvelmax, x0, x_goal, param['t_ramp'])
+    ydes, yveldes,ay = kglocal.velramp(t_now, yvelmax, y0, y_goal, param['t_ramp'])
+    # print("ax: ", ax, "xveldes: ",xveldes, " xdes: ",xdes)
     # get desired angular positions and velocities
     qdes = kglocal.despsi_fun(q_goal, t_goal_psi, q0, t_now)
 
@@ -174,7 +175,7 @@ def slam_callback(data, paramf):
     #  --------- Publish goals ---------
     # publish goal array
     array = [goals_received, xdes,ydes,psides[2],\
-             xveldes,yveldes,psiveldes]
+             xveldes,yveldes,psiveldes,ax,ay]
     data_to_send = Float64MultiArray(data = array)
     pub_goal.publish(data_to_send)
 

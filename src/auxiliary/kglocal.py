@@ -15,34 +15,40 @@ def velramp(t, velabs, xy0, xyg, tr):
     d = xyg-xy0
     vel = velabs*kguseful.safe_div(d, abs(d))  # avoid zero division stability
     a = vel/tr
-    print("acceleration: ", a)
     tv = kguseful.safe_div((d-tr*vel), vel)
     if tv > 0:
         if t <= tr:
+            ades = a
             veldes = t*a
             xydes = 0.5*veldes*t + xy0
         elif t > tr and t < tr+tv:
+            ades = 0
             veldes = vel
             xydes = 0.5*vel*tr + (t-tr)*vel + xy0
         elif t > tr + tv and t < 2*tr + tv:
+            ades = -a
             veldes = vel-(t-tr-tv)*a
             xydes = 0.5*vel*tr + tv*vel + veldes*(t-tr-tv) + 0.5*(vel-veldes)*(t-tr-tv) + xy0
         else:
+            ades = 0 
             veldes = 0
             xydes = xyg
     elif tv <= 0:
         tg = math.sqrt((4*d)/a)
         if t <= 0.5*tg:
+            ades = a
             veldes = a*t
             xydes = 0.5*veldes*t + xy0
         elif t > 0.5*tg and t < tg:
+            ades = -a
             veldes = 0.5*tg*a - (t - 0.5*tg)*a
             vm2 = 0.5*tg*a
             xydes = vm2*0.5*tg - 0.5*(tg-t)*vm2 + xy0
         else:
+            ades = 0
             veldes = 0
             xydes = xyg
-    return xydes, veldes
+    return xydes, veldes,ades
 
 
 # desired x and y values
