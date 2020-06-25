@@ -59,7 +59,7 @@ thruster_2 = 0
 thruster_3 = 0
 thruster_4 = 0
 # dictionary to store controller parameters
-param_model = dict(kp = 0.5, kd = 0.1, lim = 1.4)
+param_model = dict(kp = 0.5, kd = 0.1, lim = 1.0)
 param       = dict(kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,lim=1.4, lim_psi=0.7)
 
 # ----- Functions -----
@@ -152,7 +152,8 @@ def control_callback(event):
         # vqx = Rt * [x_vel,y_vel]t
         aqx = math.cos(psi)*ax + math.sin(psi)*ay
         vqx = math.cos(psi)*x_vel + math.sin(psi)*y_vel
-        x_model_ctrl = M*aqx + R1*vqx + R2*(vqx**2)
+        x_model_ctrl = M*aqx + R1*vqx + R2*(vqx*abs(vqx))
+        # x_model_no_tform = M*ax + R1*x_vel + R2*x_vel
         # x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
         y_body_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
         

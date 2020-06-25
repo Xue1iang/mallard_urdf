@@ -11,43 +11,60 @@ def vel_fun(dv, dt):
     return vel
 
 
-def velramp(t, velabs, xy0, xyg, tr):
+def velramp(t, velabs, xy0, xyg, tr,name):
     d = xyg-xy0
     vel = velabs*kguseful.safe_div(d, abs(d))  # avoid zero division stability
     a = vel/tr
     tv = kguseful.safe_div((d-tr*vel), vel)
     if tv > 0:
         if t <= tr:
+            if (name == "x") : print(name + "-ramp acc is +a")
             ades = a
             veldes = t*a
             xydes = 0.5*veldes*t + xy0
         elif t > tr and t < tr+tv:
+            if (name == "x") : print(name + "-ramp acc is 0")
             ades = 0
             veldes = vel
             xydes = 0.5*vel*tr + (t-tr)*vel + xy0
         elif t > tr + tv and t < 2*tr + tv:
+            if (name == "x") : print(name + "-ramp acc is -a")
             ades = -a
             veldes = vel-(t-tr-tv)*a
             xydes = 0.5*vel*tr + tv*vel + veldes*(t-tr-tv) + 0.5*(vel-veldes)*(t-tr-tv) + xy0
         else:
+            if (name == "x") : print(name + "-ramp acc is out of bound: 0")
             ades = 0 
             veldes = 0
             xydes = xyg
+        
     elif tv <= 0:
-        tg = math.sqrt((4*d)/a)
+        
+        if (a == 0):
+            tg = math.sqrt((4*d)/0.001)
+            if (name == "x") : print (name + "-triangle. Error, cant divide by 0, t: ",t," tg: ",tg," and d:",d)
+        else:
+            if (name == "x") : print(name + "-triangle. Standard computation")
+            tg = math.sqrt((4*d)/a)
         if t <= 0.5*tg:
+            if (name == "x") : print(name + "-triangle acc is +a")
             ades = a
             veldes = a*t
             xydes = 0.5*veldes*t + xy0
+            # print(name, ": +a in triangle")
         elif t > 0.5*tg and t < tg:
+            if (name == "x") : print(name + "-triangle acc is -a")
             ades = -a
             veldes = 0.5*tg*a - (t - 0.5*tg)*a
             vm2 = 0.5*tg*a
             xydes = vm2*0.5*tg - 0.5*(tg-t)*vm2 + xy0
         else:
+            if (name == "x") : print(name + "-tirnagle acc is out of bound: 0")
             ades = 0
             veldes = 0
             xydes = xyg
+            # print(name, ": outside of triangle")
+
     return xydes, veldes,ades
 
 

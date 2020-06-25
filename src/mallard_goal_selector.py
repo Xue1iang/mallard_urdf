@@ -141,8 +141,13 @@ def slam_callback(data, paramf):
     # GOALS - get desired linear positions and velocities
     xvelmax = abs(kguseful.safe_div((x_goal-x0), t_goal))
     yvelmax = abs(kguseful.safe_div((y_goal-y0), t_goal))
-    xdes, xveldes,ax = kglocal.velramp(t_now, xvelmax, x0, x_goal, param['t_ramp'])
-    ydes, yveldes,ay = kglocal.velramp(t_now, yvelmax, y0, y_goal, param['t_ramp'])
+
+    name = "x"
+    # print(name, " velocity: ",xvelmax)
+    xdes, xveldes,ax = kglocal.velramp(t_now, xvelmax, x0, x_goal, param['t_ramp'],name)
+    name = "y"
+    # print(name, " velocity: ",yvelmax)
+    ydes, yveldes,ay = kglocal.velramp(t_now, yvelmax, y0, y_goal, param['t_ramp'],name)
     # print("ax: ", ax, "xveldes: ",xveldes, " xdes: ",xdes)
     # get desired angular positions and velocities
     qdes = kglocal.despsi_fun(q_goal, t_goal_psi, q0, t_now)
