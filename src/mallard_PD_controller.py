@@ -47,7 +47,7 @@ thruster_2 = 0
 thruster_3 = 0
 thruster_4 = 0
 # dictionary to store controller parameters
-param = dict(kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,lim=1.4, lim_psi=0.7)
+param = dict(kp=5, kd=5, kp_psi=1.5, kd_psi=0.5,lim=1.4, lim_psi=0.7)
 
 # ----- Functions -----
 def thruster_ctrl_msg():
