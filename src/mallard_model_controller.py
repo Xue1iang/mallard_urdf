@@ -40,13 +40,21 @@ goal_counter = 0
 
 # model based control variables:
 m  = 10.5 #Mallard's mass
-b  = 0.859 # sum of thruster coeffs 
-r1 = 1.435 # linear coeff
-r2 = 19.262 # quadratic coeff.
+bx  = 0.859 # sum of thruster coeffs 
+r1_x = 1.435 # linear coeff
+r2_x = 19.262 # quadratic coeff.
+
+by = 0.86
+r1_y =0.552
+r2_y = 16.3
 # get coeefs. divided by b:
-M = m/b
-R1 = r1/b
-R2 = r2/b
+Mx = m/bx
+R1_x = r1_x/bx
+R2_x = r2_x/bx
+
+My = m/by
+R1_y = r1_y/by
+R2_y = r2_y/by
 
 # simulation variables:
 a_sim=1.0556
@@ -59,7 +67,8 @@ thruster_2 = 0
 thruster_3 = 0
 thruster_4 = 0
 # dictionary to store controller parameters
-param_model = dict(kp = 1, kd = 2, lim = 1.4)
+param_model_x = dict(kp = 1, kd = 2, lim = 1.4)
+param_model_y = dict(kp = 1, kd = 1, lim = 1.4)
 param       = dict(kp=5, kd=1, kp_psi=1.5, kd_psi=0.5,lim=1.4, lim_psi=0.7)
 
 # ----- Functions -----
@@ -140,8 +149,8 @@ def control_callback(event):
         # print("x_acc_goal: ",x_acc_goal)
         # print("y_acc_goal: ",y_acc_goal)
          # ----- control -----        
-        ax = control.acc_ctrl(x, x_goal, x_vel, x_vel_goal,x_acc_goal,param_model['kp'], param_model['kd'], param_model['lim'])
-        ay = control.acc_ctrl(y, y_goal, y_vel, y_vel_goal,y_acc_goal,param_model['kp'], param_model['kd'], param_model['lim'])
+        ax = control.acc_ctrl(x, x_goal, x_vel, x_vel_goal,x_acc_goal,param_model_x['kp'], param_model_x['kd'], param_model_x['lim'])
+        ay = control.acc_ctrl(y, y_goal, y_vel, y_vel_goal,y_acc_goal,param_model_y['kp'], param_model_y['kd'], param_model_y['lim'])
 
         x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
         y_global_ctrl   = control.proportional(y, y_goal, y_vel, y_vel_goal, param['kp'], param['kd'], param['lim'])
@@ -150,20 +159,23 @@ def control_callback(event):
         # convert into body frame:
         # aqx = Rt * [ax,ay]t
         # vqx = Rt * [x_vel,y_vel]t
-        aqx = math.cos(psi)*ax + math.sin(psi)*ay
+        aqx =  math.cos(psi)*ax + math.sin(psi)*ay
+        aqy = -math.sin(psi)*ax + math.cos(psi)*ay
         
-        vqx = math.cos(psi)*x_vel + math.sin(psi)*y_vel
+        vqx =  math.cos(psi)*x_vel + math.sin(psi)*y_vel
+        vqy = -math.sin(psi)*x_vel + math.cos(psi)*y_vel
         # print("X-velocity: " + str(round(vqx,4)))
-        x_body_model_ctrl = M*aqx + R1*vqx + R2*(vqx*abs(vqx))
-        # x_model_no_tform = M*ax + R1*x_vel + R2*x_vel
+        x_body_model_ctrl = Mx*aqx + R1_x*vqx + R2_x*(vqx*abs(vqx))
+        y_body_model_ctrl = My*aqy + R1_y*vqy + R2_y*(vqy*abs(vqy))
         # x_body_ctrl =  math.cos(psi)*x_global_ctrl + math.sin(psi)*y_global_ctrl
-        y_body_PD_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
+        # y_body_PD_ctrl = -math.sin(psi)*x_global_ctrl + math.cos(psi)*y_global_ctrl
         
         # ----- simulation -----
         # vector forces scaled in body frame
         x_sim   = (x_body_model_ctrl)*linear_scale
         # x_sim   = (x_body_ctrl)*linear_scale
-        y_sim   = (y_body_PD_ctrl)*linear_scale
+        y_sim   = (y_body_model_ctrl)*linear_scale
+        # y_sim   = (y_body_PD_ctrl)*linear_scale
         psi_sim = (-psi_global_ctrl)*angular_scale
 
         # ----- thrust allocation -----

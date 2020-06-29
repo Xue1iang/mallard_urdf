@@ -10,7 +10,7 @@
     <xacro:pond_model/> -->
 
     <model name='test_pond_floor'>
-    <pose frame=''>1.35 -0.05 -0.7 0 -0 0</pose>
+    <pose frame=''>1.35 -0.05 -0.4 0 -0 0</pose>
     <link name='Floor_1'>
       <collision name='Floor_1_Collision'>
         <geometry>
