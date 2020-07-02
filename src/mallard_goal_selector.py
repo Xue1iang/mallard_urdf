@@ -31,6 +31,9 @@ yp = 0
 qp = [0, 0, 0, 0]
 psides = 0
 
+# execute back and forth motion between two goals
+back_and_forth = True
+
 # stripe parameters 
 gap = 0.2
 sd = 0  # sd = 0, stripes in x direction sd = 1 stripes in y direction
@@ -92,6 +95,7 @@ def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
+    global back_and_forth
 
     
 
@@ -117,9 +121,16 @@ def slam_callback(data, paramf):
         y0 = goal_array[n_goals, 1]
         q0 = tft.quaternion_from_euler(0, 0, goal_array[n_goals, 2])
         n_goals = n_goals + 1
+        # --------------------------------------
+        # to go back nad forth between two goals
+        if(n_goals > 1 and back_and_forth):
+            n_goals = 0
+        # --------------------------------------
         x_goal = goal_array[n_goals, 0]
         y_goal = goal_array[n_goals, 1]
         q_goal = tft.quaternion_from_euler(0, 0, goal_array[n_goals, 2])
+        
+         
 
     # work out time and distance it will take to get to new goal, xy and psi
     if flag_first or flag_goal_met:

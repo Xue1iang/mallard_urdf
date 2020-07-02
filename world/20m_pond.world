@@ -7,7 +7,7 @@
 
   <model name='large_pond'>
     <!-- Offset entire pond with respect to mallard coordinate system -->
-    <pose frame=''>0 0 -0.7 0 -0 0</pose>
+    <pose frame=''>0 0 -0.5 0 -0 0</pose>
     <link name='Floor_0'>
       <collision name='Floor_0_Collision'>
         <geometry>

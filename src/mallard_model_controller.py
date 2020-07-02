@@ -77,6 +77,7 @@ def thruster_ctrl_msg():
     global thruster_1,thruster_2,thruster_3,thruster_4
     msg = JointState()
     msg.header = Header()
+    msg.header.stamp = rospy.Time.now()
     msg.name = ['x_thr_left','x_thr_right','y_thr_left','y_thr_right']
     msg.position = []
     msg.velocity = []
