@@ -32,7 +32,9 @@ qp = [0, 0, 0, 0]
 psides = 0
 
 # execute back and forth motion between two goals
-back_and_forth = True
+back_and_forth = False
+single_goal = True
+counter = 0
 
 # stripe parameters 
 gap = 0.2
@@ -95,7 +97,7 @@ def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
-    global back_and_forth
+    global back_and_forth,single_goal,counter
 
     
 
@@ -125,6 +127,14 @@ def slam_callback(data, paramf):
         # to go back nad forth between two goals
         if(n_goals > 1 and back_and_forth):
             n_goals = 0
+        elif(single_goal):
+            if(counter <= 100 and n_goals == 1):
+                if(counter % 10 == 0): print("wait for 10 seconds; counting " + str(counter/10))
+                n_goals = 0
+                counter += 1
+            else:
+                n_goals = 1
+                counter = 0
         # --------------------------------------
         x_goal = goal_array[n_goals, 0]
         y_goal = goal_array[n_goals, 1]
@@ -144,7 +154,7 @@ def slam_callback(data, paramf):
         # rospy.loginfo("t_goal_psi: %s, t_goal: %s", t_goal_psi, t_goal)
         # rospy.loginfo("x: %s, y: %s", data.pose.position.x, data.pose.position.y)
         # rospy.loginfo("xg: %s, yg: %s", x_goal, y_goal)
-        rospy.loginfo("goal number: %s, end goal: %s", n_goals + 1, goal_array.shape[0])
+        # rospy.loginfo("goal number: %s, end goal: %s", n_goals+1, goal_array.shape[0])
 
     # time since start of the goal:
     t_now = (data.header.stamp.secs + data.header.stamp.nsecs * 0.000000001) - t0
@@ -183,7 +193,7 @@ def slam_callback(data, paramf):
             e_psi = kguseful.err_psi_fun(q_now, q_goal)
             if abs(e_psi) <= paramf['goal_tol_psi']:
                 if goal_array.shape[0] != n_goals + 1:  # if there are more goals
-                    print 'goal met'
+                    # print 'goal met'
                     flag_goal_met = True  # set flag to move to next goal
                 if goal_array.shape[0] == n_goals + 1:  # if there are no more goals
                         print 'final goal met - holding position'

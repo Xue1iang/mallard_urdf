@@ -8,7 +8,7 @@
 
 <!-- Dynamic Reconfigure -->
 <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" />
-<node pkg="mallard_urdf" type="coverage_selection.py" name="coverage_selection" output="screen"/>
+<node pkg="mallard_urdf" type="coverage_selection.py" name="coverage_selection"/>
 <!-- teleop end -->
 
 <!-- Controller & SLAM -->
