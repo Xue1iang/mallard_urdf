@@ -128,13 +128,20 @@ def slam_callback(data, paramf):
         if(n_goals > 1 and back_and_forth):
             n_goals = 0
         elif(single_goal):
+            
             if(counter <= 100 and n_goals == 1):
                 if(counter % 10 == 0): print("wait for 10 seconds; counting " + str(counter/10))
                 n_goals = 0
                 counter += 1
-            else:
+                # print("n_goals: " + str(n_goals))
+            else: # maitain the goal
+                if(n_goals == 2): print("GOAL REACHED")
                 n_goals = 1
                 counter = 0
+
+            
+                # print("n_goals: " + str(n_goals))
+                
         # --------------------------------------
         x_goal = goal_array[n_goals, 0]
         y_goal = goal_array[n_goals, 1]

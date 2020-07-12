@@ -59,7 +59,7 @@
       <!-- chassis physics -->
       <inertial>
         <origin xyz="0 0 -0.019" rpy="0 0 0"/>
-        <mass value="10.5"/>
+        <mass value="15.5"/>
         <inertia ixx="0.17" ixy="0.0" ixz="0.0" iyy="0.25" iyz="0.0" izz="0.40"/>
       </inertial>
 
@@ -67,7 +67,7 @@
       begins to decrease when approaching the water surface -->
       <buoyancy>
           <!-- Compensation coefficient is buoyancy force to weight ratio. Mallard
-               buoyancy force is 11.52kg, weight is10.5kg.   -->
+               buoyancy force is 12.6kg, weight is10.5kg.   -->
           <compensation>1.2</compensation>
           <origin xyz= "0 0 0"/>
           <limit radius="0.1"/>
