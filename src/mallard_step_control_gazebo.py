@@ -279,8 +279,8 @@ def control_callback(event):
         # override x-body control with step function:
         if(goal_number==1 and (wait_counter>=wait_number)):
             print("executing step")
-            # x_body_ctrl = step_ctrl_input
-            y_body_ctrl = -step_ctrl_input
+            x_body_ctrl = step_ctrl_input
+            # y_body_ctrl = -step_ctrl_input
 
         elif(goal_number>=2):
             x_body_ctrl = 0
@@ -321,7 +321,6 @@ if __name__ == '__main__':
     pub_velocity = rospy.Publisher('/mallard/thruster_command',JointState,queue_size=10)
 
     # # SUBSCRIBER
-    # rospy.Subscriber("/slam_out_pose",PoseStamped,slam_callback)
     rospy.Subscriber("/gazebo/model_states",ModelStates,gazebo_callback) #for accuarate position and velocity
     rospy.Subscriber("/mallard/goals",Float64MultiArray,goal_callback)
     rospy.Timer(rospy.Duration(loop_period), control_callback,oneshot=False)
