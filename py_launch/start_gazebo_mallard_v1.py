@@ -99,7 +99,7 @@ def start_socket(host, port):
     # finally:
     #     conn.close()
     except:
-        pass
+        print("Error occured in socket connection")
 
 def main(args):
     dpath_logs = args.dpath_logs
@@ -111,31 +111,30 @@ def main(args):
 
     start_time = time.strftime('%Y%m%d_%H%M%S')
 
-    # session_gazebo = start_process(['/bin/bash', script_gazebo],
-    #                            'gazebo_launchfile', start_time,
-    #                            dpath_logs)   
+    session_gazebo = start_process(['/bin/bash', script_gazebo],
+                               'gazebo_launchfile', start_time,
+                               dpath_logs)   
     # Wait for gazebo, otherwise HECTOR SLAM error
-    # time.sleep(5)
+    time.sleep(5)
     session_mallard = start_process(['/bin/bash', script_mallard],
                                'mallard_launchfile', start_time,
                                dpath_logs)                            
     # print pids in case something goes wrong
-    # print('PGID GAZEBO LAUNCH: ', os.getpgid(session_gazebo.pid))
+    print('PGID GAZEBO LAUNCH: ', os.getpgid(session_gazebo.pid))
     print('PGID MALLARD LAUNCH: ', os.getpgid(session_mallard.pid))
 
     # create socket and listen on the port
     HOST = socket.gethostbyname("localhost")
     PORT = 65432
     start_socket(HOST, PORT)
-
+    print("Socket connection terminated")
     
 
     time.sleep(3)
-    print('Killing ROS and talker node.')
-    # os.killpg(os.getpgid(p_ros_core.pid), signal.SIGTERM)
+    print('Killing controller and Gazebo simulator.')
     os.killpg(os.getpgid(session_mallard.pid), signal.SIGTERM)
-    # time.sleep(3)
-    # os.killpg(os.getpgid(session_gazebo.pid), signal.SIGTERM)
+    time.sleep(3)
+    os.killpg(os.getpgid(session_gazebo.pid), signal.SIGTERM)
 
 
 if __name__ == '__main__':
