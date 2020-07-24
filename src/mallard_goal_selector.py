@@ -151,6 +151,7 @@ def slam_callback(data, paramf):
                 if(counter % 10 == 0): print("wait for 10 seconds; counting " + str(counter/10))
                 n_goals = 0
                 counter += 1
+                s.sendall(b'counter: ' + str(counter))
                 # print("n_goals: " + str(n_goals))
             else: # maitain the goal
                 if(n_goals == 2): 
