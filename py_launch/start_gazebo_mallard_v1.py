@@ -1,5 +1,7 @@
+#!/usr/bin/env python
 import os
 import signal
+import socket
 from subprocess import Popen
 import time
 
@@ -28,6 +30,7 @@ def get_stdout_stderr(typ, datetime, dir):
     """Create stdout / stderr file paths."""
     out = '%s_%s_stdout.log' % (datetime, typ)
     err = '%s_%s_stderr.log' % (datetime, typ)
+    print(out)
     return os.path.join(dir, out), os.path.join(dir, err)
 
 
@@ -75,6 +78,28 @@ def start_process(cmd, typ, start_time, dpath_logs):
     with open(stdout, 'wb') as out, open(stderr, 'wb') as err:
         return run(cmd, stdout=out, stderr=err)
 
+def start_socket(host, port):
+    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind((host, port))
+    s.listen(1)
+    conn, addr = s.accept()
+    try:
+    # with conn:
+        print('Connected by', addr)
+        while True:
+            data = conn.recv(1024)
+            if data:
+                print("DATA RECEIVED")
+                print(data)
+            if data == b'killall':
+                # Send the signal to all the process groups
+                print('Received killall signal.')
+                break
+    # finally:
+    #     conn.close()
+    except:
+        pass
 
 def main(args):
     dpath_logs = args.dpath_logs
@@ -86,25 +111,31 @@ def main(args):
 
     start_time = time.strftime('%Y%m%d_%H%M%S')
 
-    session_gazebo = start_process(['/bin/bash', script_gazebo],
-                               'gazebo_launchfile', start_time,
-                               dpath_logs)   
+    # session_gazebo = start_process(['/bin/bash', script_gazebo],
+    #                            'gazebo_launchfile', start_time,
+    #                            dpath_logs)   
     # Wait for gazebo, otherwise HECTOR SLAM error
-    time.sleep(5)
+    # time.sleep(5)
     session_mallard = start_process(['/bin/bash', script_mallard],
                                'mallard_launchfile', start_time,
                                dpath_logs)                            
     # print pids in case something goes wrong
-    print('PGID GAZEBO LAUNCH: ', os.getpgid(session_gazebo.pid))
+    # print('PGID GAZEBO LAUNCH: ', os.getpgid(session_gazebo.pid))
     print('PGID MALLARD LAUNCH: ', os.getpgid(session_mallard.pid))
 
+    # create socket and listen on the port
+    HOST = socket.gethostbyname("localhost")
+    PORT = 65432
+    start_socket(HOST, PORT)
 
-    time.sleep(10)
+    
+
+    time.sleep(3)
     print('Killing ROS and talker node.')
     # os.killpg(os.getpgid(p_ros_core.pid), signal.SIGTERM)
     os.killpg(os.getpgid(session_mallard.pid), signal.SIGTERM)
-    time.sleep(3)
-    os.killpg(os.getpgid(session_gazebo.pid), signal.SIGTERM)
+    # time.sleep(3)
+    # os.killpg(os.getpgid(session_gazebo.pid), signal.SIGTERM)
 
 
 if __name__ == '__main__':

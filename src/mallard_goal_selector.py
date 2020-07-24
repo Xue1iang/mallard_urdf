@@ -3,6 +3,8 @@
 import math
 import rospy
 import numpy as np
+import socket
+# import sys
 import collections as coll
 import tf.transformations as tft
 import auxiliary.kglocal as kglocal
@@ -14,6 +16,20 @@ from sensor_msgs.msg import LaserScan
 from mallard_urdf.cfg import MtwoParamConfig
 from dynamic_reconfigure.server import Server
 from geometry_msgs.msg import PoseStamped, PoseArray
+
+
+# HOST = "localhost"
+# PORT = 65432
+# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# try: 
+#     s.connect((HOST, PORT))
+    # do this inside dynreconfigure with s.close()
+    # if(socket_close):
+    #     s.sendall(b'killall')
+# finally:
+#     if(socket_close):
+#         s.close()
+
 
 
 
@@ -45,6 +61,11 @@ y1 = 0.0
 y2 = 0.6
 psi = 0 * math.pi
 goal_array = kgstripes.stripes(sd, gap, x1, x2, y1, y2, psi)
+
+# SOCKET:
+iteration = 0
+iteration_max = 3
+socket_close = False
 
 # Make a blank goal array
 goal_array = np.array([])
@@ -86,11 +107,24 @@ def path_callback(msg):  # Manage inbound arrays of goal positions for coverage 
 
 def dynReconfigCallback(config, level):
     global param
+    global socket_close
+    global iteration,iteration_max,s
+
     param['vel'] = config.lin_vel                   # set linear velocity
     param['psivel'] = config.psi_vel                # set angular velocity
     param['goal_tol'] = config.gtol                 # set linear goal tolerance
     param['goal_tol_psi'] = config.psi_gtol         # set angular goal tolerance
     rospy.loginfo("linvel: %s", param['vel'])
+
+    # send kill signal once iteration_max is reached
+    iteration += 1
+    print("Iteration: " + str(iteration))
+    if iteration == iteration_max:
+        socket_close = True
+        print("***dynRecon: reached iteration :" + str(iteration))
+        s.sendall(b'killall')
+        s.close()
+
     return config
 
 def slam_callback(data, paramf):
@@ -98,6 +132,7 @@ def slam_callback(data, paramf):
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
     global back_and_forth,single_goal,counter
+    global iteration,iteration_max
 
     
 
@@ -203,7 +238,7 @@ def slam_callback(data, paramf):
                     # print 'goal met'
                     flag_goal_met = True  # set flag to move to next goal
                 if goal_array.shape[0] == n_goals + 1:  # if there are no more goals
-                        print 'final goal met - holding position'
+                        print('final goal met - holding position')
 
     #  --------- Publish goals ---------
     # publish goal array
@@ -216,7 +251,7 @@ def slam_callback(data, paramf):
     # yf_nav = kglocal.cont_fun(data.pose.position.y, ydes, yvel, yveldes, paramf['kp'], paramf['kd'], paramf['lim'])
     # psif_nav = kglocal.contpsi_fun(q_now, qdes, psivel, psiveldes, paramf['kp_psi'], paramf['kd_psi'],paramf['lim_psi'])
     # pub_goal.publish(goals_stamped)
-    
+
 
     # PREVIOUS VALUES - change current to previous values
     tp = t_now
@@ -242,6 +277,25 @@ if __name__ == '__main__':
     
     # Subscribe to array of goal poses from RVIZ interactive coverage selector
     dynrecon = Server(MtwoParamConfig, dynReconfigCallback)
+
+    # SOCKET: connect to socket and initialize counter vars
+    HOST = socket.gethostbyname("localhost")
+    # HOST = "localhost"
+    PORT = 65432
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # try: 
+    s.connect((HOST, PORT))
+    print("***connected to HOST")
+
+        
+        # if(socket_close):
+    # s.sendall(b'killall')
+    # finally:
+        # if(socket_close):
+
+    # s.close()
+
+    
     rospy.spin()
 
     # --------------------------------------------------------------------------------
