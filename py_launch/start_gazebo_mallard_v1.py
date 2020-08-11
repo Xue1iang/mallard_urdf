@@ -3,6 +3,7 @@ import os
 import signal
 import socket
 from subprocess import Popen
+import subprocess
 import time
 
 
@@ -92,14 +93,15 @@ def start_socket(host, port):
             if data:
                 print("DATA RECEIVED")
                 print(data)
+                # Popen(['ls','-l'],stdout=subprocess.PIPE)
             if data == b'killall':
                 # Send the signal to all the process groups
                 print('Received killall signal.')
                 break
-    # finally:
-    #     conn.close()
     except:
         print("Error occured in socket connection")
+    finally:
+        conn.close()
 
 def main(args):
     dpath_logs = args.dpath_logs

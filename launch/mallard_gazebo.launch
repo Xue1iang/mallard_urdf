@@ -19,7 +19,7 @@
   <group ns="mallard">
     <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
     <node name="spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-          args="-urdf -model mallard -param robot_description -x 0 -y 0 -z 1 -R 0 -P 0 -Y 0" />
+          args="-urdf -model mallard -param robot_description -x 0.5 -y 0 -z 1 -R 0 -P 0 -Y 0" />
 
     <!-- Thrusters control -->
     <!-- Load controller configurations (vehicle and arm) from YAML file to parameter server -->

@@ -100,15 +100,6 @@ def dynReconfigCallback(config, level):
     param['goal_tol_psi'] = config.psi_gtol         # set angular goal tolerance
     rospy.loginfo("linvel: %s", param['vel'])
 
-    # send kill signal once iteration_max is reached
-    # iteration += 1
-    # print("Iteration: " + str(iteration))
-    # if iteration == iteration_max:
-    #     socket_close = True
-    #     print("***dynRecon: reached iteration :" + str(iteration))
-    #     s.sendall(b'killall')
-    #     s.close()
-
     return config
 
 def slam_callback(data, paramf):
