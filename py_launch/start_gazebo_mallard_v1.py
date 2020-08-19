@@ -91,22 +91,25 @@ def start_socket(host, port):
     while True:
         data = clientsocket.recv(1024)
 
-        if data:
+        if data == '':
+            raise RuntimeError("socket connection broken") 
+        if data != 'killall':
             print("DATA RECEIVED")
             print(data)
             # rosbag_start = True
             # Popen(['ls','-l'],stdout=subprocess.PIPE)
-        if data == b'killall':
+        else:
             # Send the signal to all the process groups
-            print('Received killall signal.')
+            print('\nReceived killall signal.')
             break
 
 def main(args):
     dpath_logs = args.dpath_logs
     script_gazebo = args.script_gazebo
     script_mallard = args.script_mallard
+    script_rosbag = args.script_rosbag
     
-    check_files_exist([script_gazebo, script_mallard, dpath_logs])
+    check_files_exist([script_gazebo, script_mallard, script_rosbag, dpath_logs])
     # print('gazebo: ',script_gazebo,' mallard: ',script_mallard)
 
     start_time = time.strftime('%Y%m%d_%H%M%S')
@@ -131,7 +134,7 @@ def main(args):
     print("Socket connection terminated")
 
     time.sleep(3)
-    print('Killing controller and Gazebo simulator.')
+    print('\nKilling controller and Gazebo simulator.')
     os.killpg(os.getpgid(session_mallard.pid), signal.SIGTERM)
     time.sleep(3)
     os.killpg(os.getpgid(session_gazebo.pid), signal.SIGTERM)
@@ -156,6 +159,10 @@ if __name__ == '__main__':
     parser.add_argument('--script_mallard', type=str,
                         default='/home/konrad/ROS/workspaces/ros_gazebo_ws/src'
                                  '/mallard_urdf/py_launch/bash_launch/mallard.sh')
+    parser.add_argument('--script_rosbag', type=str,
+                        default='/home/konrad/ROS/workspaces/ros_gazebo_ws/src'
+                                 '/mallard_urdf/py_launch/bash_launch/rosbag.sh')
+
     # LOG FILES                        
     parser.add_argument('--dpath_logs', '-l', type=str,
                         default='/home/konrad/ROS/workspaces/ros_gazebo_ws/src'
