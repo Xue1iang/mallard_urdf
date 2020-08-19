@@ -81,7 +81,7 @@ def start_process(cmd, typ, start_time, dpath_logs):
     with open(stdout, 'wb') as out, open(stderr, 'wb') as err:
         return run(cmd, stdout=out, stderr=err)
 
-def start_socket(host, port):
+def start_socket(host, port,script_rosbag,start_time,dpath_logs):
     # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
@@ -96,12 +96,17 @@ def start_socket(host, port):
         if data != 'killall':
             print("DATA RECEIVED")
             print(data)
-            # rosbag_start = True
-            # Popen(['ls','-l'],stdout=subprocess.PIPE)
+            # start after 2 seconds settling time
+            if(data == 'counter: 20'):
+                print("Starting rosbag record")
+                session = start_process(['/bin/bash',script_rosbag],
+                                        'rosbag_record',start_time,dpath_logs) 
         else:
             # Send the signal to all the process groups
             print('\nReceived killall signal.')
             break
+
+    return session
 
 def main(args):
     dpath_logs = args.dpath_logs
@@ -115,26 +120,34 @@ def main(args):
     start_time = time.strftime('%Y%m%d_%H%M%S')
 
     session_gazebo = start_process(['/bin/bash', script_gazebo],
-                               'gazebo_launchfile', start_time,
-                               dpath_logs)   
+                               'gazebo_launchfile', start_time,dpath_logs)   
     # Wait for gazebo, otherwise HECTOR SLAM error
     time.sleep(5)
     session_mallard = start_process(['/bin/bash', script_mallard],
-                               'mallard_launchfile', start_time,
-                               dpath_logs)                            
+                               'mallard_launchfile', start_time,dpath_logs)  
+
+    # session_rosbag = start_process(['/bin/bash',script_rosbag],
+    #                                 'rosbag_record',start_time,dpath_logs)    
+                      
     # print pids in case something goes wrong
     print('PGID GAZEBO LAUNCH: ', os.getpgid(session_gazebo.pid))
     print('PGID MALLARD LAUNCH: ', os.getpgid(session_mallard.pid))
+    # print('PGID ROSBAG RECORD: ', os.getpgid(session_rosbag.pid))
+
 
     # Needs this to know when Mallard reaches final goal
     # so everthing can be shut down. Create socket and listen on the port.
     HOST = socket.gethostbyname("localhost")
     PORT = 65432
-    start_socket(HOST, PORT)
-    print("Socket connection terminated")
+    session_rosbag = start_socket(HOST, PORT,script_rosbag,start_time,dpath_logs)
+    print('Socket connection terminated')
+
+    print('\nKilling rosbag record')
+    # make sure signal is SIGINT (not SIGTERM) which is equivalent to ctrl + c
+    os.killpg(os.getpgid(session_rosbag.pid), signal.SIGINT)
 
     time.sleep(3)
-    print('\nKilling controller and Gazebo simulator.')
+    print('Killing controller and Gazebo simulator.')
     os.killpg(os.getpgid(session_mallard.pid), signal.SIGTERM)
     time.sleep(3)
     os.killpg(os.getpgid(session_gazebo.pid), signal.SIGTERM)

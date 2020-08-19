@@ -143,7 +143,6 @@ def slam_callback(data, paramf):
                 n_goals = 0
                 counter += 1
                 s.send(b'counter: ' + str(counter))
-                # print("n_goals: " + str(n_goals))
             else: # maitain the goal
                 if(n_goals == 2): 
                     n_goals = 1

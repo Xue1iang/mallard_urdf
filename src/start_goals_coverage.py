@@ -35,7 +35,7 @@ pose_update.mouse_point_valid = True
 rate = rospy.Rate(1)
 finished = False
 # seq_num += 1
-d = 3
+d = 4
 # print("Wait for " + str(d) + " seconds")
 rospy.sleep(d)
 
