@@ -49,7 +49,7 @@ goal_array = kgstripes.stripes(sd, gap, x1, x2, y1, y2, psi)
 # SOCKET:
 iteration = 0
 iteration_max = 3
-socket_close = False
+totalsent = 0
 
 # Make a blank goal array
 goal_array = np.array([])
@@ -91,7 +91,6 @@ def path_callback(msg):  # Manage inbound arrays of goal positions for coverage 
 
 def dynReconfigCallback(config, level):
     global param
-    global socket_close
     # global iteration,iteration_max,s
 
     param['vel'] = config.lin_vel                   # set linear velocity
@@ -107,7 +106,8 @@ def slam_callback(data, paramf):
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
     global back_and_forth,single_goal,counter
-    global s #socket variable
+    global s, totalsent #socket variable
+     
 
     
 
@@ -138,18 +138,26 @@ def slam_callback(data, paramf):
         if(n_goals > 1 and back_and_forth):
             n_goals = 0
         elif(single_goal):
-            if(counter <= 100 and n_goals == 1): #reached goal 0 - wait there for 10seconds
+            if(counter <= 50 and n_goals == 1): #reached goal 0 - wait there for 10seconds
                 if(counter % 10 == 0): print("wait for 10 seconds; counting " + str(counter/10))
                 n_goals = 0
                 counter += 1
-                s.sendall(b'counter: ' + str(counter))
+                s.send(b'counter: ' + str(counter))
                 # print("n_goals: " + str(n_goals))
             else: # maitain the goal
                 if(n_goals == 2): 
                     n_goals = 1
-                    print("GOAL REACHED")
-                    print("killing connection to goal_selector")
-                    s.sendall(b'killall')
+                    msg = "killall"
+                    msgLen = len(msg)
+                    while(totalsent < msgLen):
+                        # totalsent is global so this will execute only once
+                        # avoiding sending msg to closed (server) socket.
+                        sent = s.send(msg[totalsent:])
+                        if sent == 0:
+                            raise RuntimeError("Socket connection broken")
+                        totalsent += sent
+                        print("GOAL REACHED")
+                        print("killing connection to goal_selector")
                     s.close()
                 n_goals = 1
                 counter = 0
@@ -264,7 +272,7 @@ if __name__ == '__main__':
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # try: 
     s.connect((HOST, PORT))
-    print("***connected to HOST")
+    print("Connected to HOST")
     
     rospy.spin()
 

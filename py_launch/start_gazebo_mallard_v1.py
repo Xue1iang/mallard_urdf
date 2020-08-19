@@ -6,6 +6,8 @@ from subprocess import Popen
 import subprocess
 import time
 
+# rosbag_start = False
+
 
 def run(cmd, stdout, stderr):
     """Run a given `cmd` in a subprocess, write logs to stdout / stderr.
@@ -84,24 +86,20 @@ def start_socket(host, port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     s.listen(1)
-    conn, addr = s.accept()
-    try:
-    # with conn:
-        print('Connected by', addr)
-        while True:
-            data = conn.recv(1024)
-            if data:
-                print("DATA RECEIVED")
-                print(data)
-                # Popen(['ls','-l'],stdout=subprocess.PIPE)
-            if data == b'killall':
-                # Send the signal to all the process groups
-                print('Received killall signal.')
-                break
-    except:
-        print("Error occured in socket connection")
-    finally:
-        conn.close()
+    clientsocket, address = s.accept()
+    print('Connected by', address)
+    while True:
+        data = clientsocket.recv(1024)
+
+        if data:
+            print("DATA RECEIVED")
+            print(data)
+            # rosbag_start = True
+            # Popen(['ls','-l'],stdout=subprocess.PIPE)
+        if data == b'killall':
+            # Send the signal to all the process groups
+            print('Received killall signal.')
+            break
 
 def main(args):
     dpath_logs = args.dpath_logs
@@ -125,12 +123,12 @@ def main(args):
     print('PGID GAZEBO LAUNCH: ', os.getpgid(session_gazebo.pid))
     print('PGID MALLARD LAUNCH: ', os.getpgid(session_mallard.pid))
 
-    # create socket and listen on the port
+    # Needs this to know when Mallard reaches final goal
+    # so everthing can be shut down. Create socket and listen on the port.
     HOST = socket.gethostbyname("localhost")
     PORT = 65432
     start_socket(HOST, PORT)
     print("Socket connection terminated")
-    
 
     time.sleep(3)
     print('Killing controller and Gazebo simulator.')
