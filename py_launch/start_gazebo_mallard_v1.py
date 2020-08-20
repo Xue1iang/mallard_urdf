@@ -81,8 +81,9 @@ def start_process(cmd, typ, start_time, dpath_logs):
     with open(stdout, 'wb') as out, open(stderr, 'wb') as err:
         return run(cmd, stdout=out, stderr=err)
 
-def start_socket(host, port,script_rosbag,start_time,dpath_logs):
-    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+def start_socket(host, port,script_rosbag,name_rosbag,start_time,dpath_logs):
+    # You might put mallard launch here to avoid race conditions
+    # where mallard launches without socket connecting to goal selector
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind((host, port))
     s.listen(1)
@@ -98,8 +99,8 @@ def start_socket(host, port,script_rosbag,start_time,dpath_logs):
             print(data)
             # start after 2 seconds settling time
             if(data == 'counter: 20'):
-                print("Starting rosbag record")
-                session = start_process(['/bin/bash',script_rosbag],
+                print("Starting rosbag record: " + name_rosbag)
+                session = start_process(['/bin/bash',script_rosbag,name_rosbag],
                                         'rosbag_record',start_time,dpath_logs) 
         else:
             # Send the signal to all the process groups
@@ -134,12 +135,12 @@ def main(args):
     print('PGID MALLARD LAUNCH: ', os.getpgid(session_mallard.pid))
     # print('PGID ROSBAG RECORD: ', os.getpgid(session_rosbag.pid))
 
-
     # Needs this to know when Mallard reaches final goal
     # so everthing can be shut down. Create socket and listen on the port.
     HOST = socket.gethostbyname("localhost")
     PORT = 65432
-    session_rosbag = start_socket(HOST, PORT,script_rosbag,start_time,dpath_logs)
+    name_rosbag = 'rosbag_test_4'
+    session_rosbag = start_socket(HOST, PORT,script_rosbag,name_rosbag,start_time,dpath_logs)
     print('Socket connection terminated')
 
     print('\nKilling rosbag record')

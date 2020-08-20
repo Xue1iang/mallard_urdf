@@ -12,7 +12,8 @@
 <!-- teleop end -->
 
 <!-- Controller & SLAM -->
-<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector.py" output="screen"/>
+<!-- <node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector.py" output="screen"/> -->
+<node name="goal_selector" pkg="mallard_urdf" type="mallard_goal_selector_socket.py" output="screen"/>
 <node name="controller" pkg="mallard_urdf" type="mallard_model_controller.py" output="screen"/>
 <node name="start_goals_coverage" pkg="mallard_urdf" type="start_goals_coverage.py" output="screen"/>
 
