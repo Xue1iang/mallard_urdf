@@ -7,6 +7,8 @@ import fileinput
 # filename = '../urdf/mallard_main.xacro'
 filename = 'mallard_main.xacro'
 
+# file = fileinput.FileInput(filename) #for testing -does not change input file
+# file = fileinput.FileInput(filename, inplace=True, backup='.bak')
 
 initial_value = 8.0
 final_value = 20.0
@@ -17,6 +19,7 @@ found = False
 previous_mass = '0.0' #initialize
 string_1 = '<mass value="'
 string_2 = '"/>'
+# string_2 = 
 print(repr(string_1) + repr(string_2))
 
 while initial_value <= final_value:
@@ -40,7 +43,8 @@ while initial_value <= final_value:
         previous_str = '<mass value="' + previous_mass + '"/>'
         current_str = '<mass value="' + current_mass + '"/>'
         print(line.replace(previous_str,current_str)) 
- 
+
+        # print(line.replace(previous_str,current_str))    
     file.close()
 
 
@@ -51,11 +55,9 @@ while initial_value <= final_value:
     # update 
     previous_mass = current_mass
     initial_value += step_value
-
-    # run start_gazebo_mallard.py...
+    # time.sleep(5)
 
 # When finished reinitialize to standard value:
-print("Writing defaults to URDF file")
 time.sleep(5)
 previous_str = '<mass value="' + previous_mass + '"/>'
 default_str = '<mass value="10.5"/>'

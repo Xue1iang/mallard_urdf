@@ -1,12 +1,25 @@
 #!/usr/bin/env python
 import os
+import re
+import time
 import signal
 import socket
-from subprocess import Popen
+import fileinput
 import subprocess
-import time
+from subprocess import Popen
 
-# rosbag_start = False
+# variables required for write_to_urdf.py script:
+filename = '../urdf/mallard_main.xacro'
+# mass values: init,final and step:
+initial_value = 10.0
+final_value = 11.0
+step_value = 0.5
+# end mass values.
+initial = True
+found = False
+previous_mass = '0.0' #initialize
+string_1 = '<mass value="'
+string_2 = '"/>'
 
 
 def run(cmd, stdout, stderr):
@@ -109,7 +122,7 @@ def start_socket(host, port,script_rosbag,name_rosbag,start_time,dpath_logs):
 
     return session
 
-def main(args):
+def main(args,name_rosbag):
     dpath_logs = args.dpath_logs
     script_gazebo = args.script_gazebo
     script_mallard = args.script_mallard
@@ -139,9 +152,7 @@ def main(args):
     # so everthing can be shut down. Create socket and listen on the port.
     HOST = socket.gethostbyname("localhost")
     PORT = 65432
-    name_rosbag = 'rosbag_test_4'
-    print("Starting socket connection...")
-    print("Rosbag name: ", name_rosbag)
+    # name_rosbag = 'rosbag_test'
     session_rosbag = start_socket(HOST, PORT,script_rosbag,name_rosbag,start_time,dpath_logs)
     print('Socket connection terminated')
 
@@ -184,4 +195,60 @@ if __name__ == '__main__':
                         default='/home/konrad/ROS/workspaces/ros_gazebo_ws/src'
                                  '/mallard_urdf/py_launch/log_files')
     args = parser.parse_args()
-    main(args)
+    # original place where gazebo_mallard 
+    # executes without changing URDF:
+    # main(args)
+
+    while initial_value <= final_value:
+        current_mass =str(initial_value)
+        print("current mass: ", current_mass)
+
+        file = fileinput.FileInput(filename, inplace=True, backup='.bak')
+        for line in file:
+            line = line.rstrip()  
+            # find '<mass value=' and extract digits; executes once only:
+            if (string_1 in line) and (string_2 in line) and (initial == True):
+                # [int(s) for s in line.split() if s.isdigit()]
+                # my_digits = s
+                my_digits = re.findall(r"[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?",line)
+                previous_mass = my_digits[0]
+
+                found = True
+                initial = False
+
+
+            previous_str = '<mass value="' + previous_mass + '"/>'
+            current_str = '<mass value="' + current_mass + '"/>'
+            print(line.replace(previous_str,current_str)) 
+    
+        file.close()
+
+        # Confirm that you found first instance of mass value:
+        if found:
+            print("Found match!")
+            print(repr(my_digits[0]))
+            found = False
+
+        # run start_gazebo_mallard.py...
+        name_rosbag="mass_value=" + current_mass
+        main(args,name_rosbag)
+        # delay to allow gazebo to shutdown:
+        time.sleep(5)
+
+        # update 
+        previous_mass = current_mass
+        initial_value += step_value
+
+    
+# When finished reinitialize to standard value:
+print("Writing defaults to URDF file")
+time.sleep(5)
+previous_str = '<mass value="' + previous_mass + '"/>'
+default_str = '<mass value="10.5"/>'
+file = fileinput.FileInput(filename, inplace=True, backup='.bak')
+for line in file:
+    line = line.rstrip('\r\n')  
+    print(line.replace(previous_str,default_str))
+file.close()
+
+print("Default mass: ", default_str)

@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<robot name="mallard" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find mallard_urdf)/urdf/lidar_sensor.xacro"/>
+  <xacro:include filename="$(find mallard_urdf)/urdf/ballast.xacro"/>
+  <xacro:include filename="$(find mallard_urdf)/urdf/thruster.xacro"/>
+
+  <!-- Thrusters components & constants -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="tr1" value=".02" />
+  <xacro:property name="tl1" value=".1" />
+  <xacro:property name="tr2" value=".047" />
+  <xacro:property name="tl2" value=".045" />
+
+  <gazebo reference="base_link">
+      <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <link name="base_link">
+      <!-- Channels (aluminum connecting elements) -->
+      <visual name="r_channel_visual">
+        <geometry>
+          <box size="0.450 0.038 0.038"/>
+        </geometry>
+        <material name="gray">
+          <color rgba="0.8 0.8 0.8 1.0"/>
+        </material>
+        <origin  xyz="0 -0.15 0" />
+      </visual>
+      <collision name="mallard_box">
+        <origin xyz="0 0 0.057"/>
+        <geometry>
+          <box size="0.564 0.5 0.152"/>
+        </geometry>
+      </collision>
+
+      <visual name="l_channel_visual">
+        <geometry>
+          <box size="0.450 0.038 0.038"/>
+        </geometry>
+        <origin xyz="0 0.15 0" />
+      </visual>
+
+      <!-- Cylinders (acrylic tubes)-->
+      <visual name="front_tube_visual">
+        <geometry>
+          <cylinder radius="0.057" length="0.5"/>
+        </geometry>
+        <origin xyz="0.225 0 0.076" rpy="1.5707 0 0"/>
+      </visual>
+
+      <visual name="rear_tube_visual">
+        <geometry>
+          <cylinder radius="0.057" length="0.5"/>
+        </geometry>
+        <origin xyz="-0.225 0 0.076" rpy="1.5707 0 0"/>
+      </visual>
+
+      <!-- chassis physics -->
+      <inertial>
+        <origin xyz="0 0 -0.019" rpy="0 0 0"/>
+        <mass value="10.5"/>
+        <inertia ixx="0.17" ixy="0.0" ixz="0.0" iyy="0.25" iyz="0.0" izz="0.40"/>
+      </inertial>
+
+      <!-- The <limit> tag indicates where the buoyancy force
+      begins to decrease when approaching the water surface -->
+      <buoyancy>
+          <!-- Compensation coefficient is buoyancy force to weight ratio. Mallard
+               buoyancy force is 12.6kg, weight is10.5kg.   -->
+          <compensation>1.2</compensation>
+          <origin xyz= "0 0 0"/>
+          <limit radius="0.1"/>
+          <!-- IMPORTANT for drag! set xyz for linear position and rpy for angualar orientation-->
+          <!-- type = "linear" sets linear drag, lack of type sets quadratic drag  -->
+          <!-- based on https://github.com/freefloating-gazebo; src/hydro_link.cpp and hydro_model_parser.cpp -->
+          <damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />
+          <damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>
+      </buoyancy>
+  </link>
+
+  <xacro:lidar
+		parent="base_link"
+		lidar_name="laser"
+    mass="0.27"
+		lidar_topic="scan"
+		update_rate="30"> <!-- for sick 571 it is 15Hz-->
+		<origin xyz="0.225 0 0.194"/>
+	</xacro:lidar>
+
+  <!-- Ballast -->
+  <xacro:ballast name="ballast_1" mass="0.12" xyz=" 0.225 -0.25 0.076" rpy="${PI/2} 0 0"/>
+  <xacro:ballast name="ballast_2" mass="0.02" xyz="-0.225 -0.25 0.076" rpy="${PI/2} 0 0"/>
+
+  <!-- Forward thrusters -->
+  <xacro:thruster_link name="x_thr_left"   xyz="${(tl1/2)-0.188}  0.207 -0.041" rpy="0 ${-PI/2} 0"/>
+  <xacro:thruster_link name="x_thr_right"  xyz="${(tl1/2)-0.188} -0.207 -0.041" rpy="0 ${-PI/2} 0"/>
+  <!-- Side thrusters -->
+  <xacro:thruster_link name="y_thr_right"   xyz=" 0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${PI/2}"/>
+  <xacro:thruster_link name="y_thr_left"  xyz="-0.233 ${0.114-(tl1/2)} -0.041" rpy="0 ${PI/2} ${PI/2}"/>
+
+  <!-- FreeFloating plugin -->
+  <gazebo>
+    <plugin name="freefloating_gazebo_control" filename="libfreefloating_gazebo_control.so">
+          <switchService>switch</switchService>
+          <updateRate>100</updateRate>
+          <link>base_link</link>
+
+                <!-- THRUST CONTROL -->
+                <!--    these two thrusters are actually orientable, so the map should not be hard-coded
+                        the thruster name is the name of the corresponding link -->
+                <thruster>
+                    <effort>10</effort>
+                    <name>x_thr_left</name>
+                </thruster>
+
+                <thruster>
+                    <effort>10</effort>
+                    <name>x_thr_right</name>
+                </thruster>
+
+                <thruster>
+                    <effort>10</effort>
+                    <name>y_thr_left</name>
+                </thruster>
+
+                <thruster>
+                    <effort>10</effort>
+                    <name>y_thr_right</name>
+                </thruster>
+
+                <!-- <map> describes where the force or torque is applied
+                with respect to body_link frame. Needs at leats one of them otherwise plugin won't work  -->
+                <thruster>
+                    <map>0 1 0 0 0 0</map>
+                    <effort>2</effort>
+                </thruster>
+
+      </plugin>
+  </gazebo>
+
+
+</robot>
