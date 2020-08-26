@@ -2,6 +2,9 @@
 import rospy
 from visualization_msgs.msg import InteractiveMarkerFeedback
 
+# Node required for initializing Mallard convergence. 
+# It is in place of a mouse click by user.
+
 seq_num = 0
 
 rospy.init_node('goals_coverage_once', anonymous=True) 

@@ -140,6 +140,8 @@ def main(args):
     HOST = socket.gethostbyname("localhost")
     PORT = 65432
     name_rosbag = 'rosbag_test_4'
+    print("Starting socket connection...")
+    print("Rosbag name: ", name_rosbag)
     session_rosbag = start_socket(HOST, PORT,script_rosbag,name_rosbag,start_time,dpath_logs)
     print('Socket connection terminated')
 

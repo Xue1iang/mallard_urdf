@@ -109,8 +109,6 @@ def slam_callback(data, paramf):
     global s, totalsent #socket variable
      
 
-    
-
     # if no goal positions exist, then exit this callback!!!
     if len(goal_array) == 0:
         data_to_send = Float64MultiArray(data = [goals_received])
@@ -139,10 +137,12 @@ def slam_callback(data, paramf):
             n_goals = 0
         elif(single_goal):
             if(counter <= 50 and n_goals == 1): #reached goal 0 - wait there for 10seconds
-                if(counter % 10 == 0): print("wait for 10 seconds; counting " + str(counter/10))
+                if(counter % 10 == 0): 
+                    s.send(b"counter value: " + str(counter/10))
+                    print(  "Settling for 5 seconds,counter value: " + str(counter/10) + " seconds")
                 n_goals = 0
                 counter += 1
-                s.send(b'counter: ' + str(counter))
+                
             else: # maitain the goal
                 if(n_goals == 2): 
                     n_goals = 1
@@ -266,10 +266,8 @@ if __name__ == '__main__':
 
     # SOCKET: connect to socket and initialize counter vars
     HOST = socket.gethostbyname("localhost")
-    # HOST = "localhost"
     PORT = 65432
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # try: 
     s.connect((HOST, PORT))
     print("Connected to HOST")
     

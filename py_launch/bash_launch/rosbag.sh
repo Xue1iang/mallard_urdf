@@ -3,7 +3,7 @@
 cd rosbags
 
 name=$1
-rosbag record -O $name /mallard/goals /slam_out_pose
+rosbag record -O $name /mallard/goals /gazebo/model_states 
 
 
 

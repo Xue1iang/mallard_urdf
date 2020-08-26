@@ -11,9 +11,9 @@ from subprocess import Popen
 # variables required for write_to_urdf.py script:
 filename = '../urdf/mallard_main.xacro'
 # mass values: init,final and step:
-initial_value = 10.0
-final_value = 11.0
-step_value = 0.5
+initial_value = 8.00
+final_value = 20.0
+step_value = 1.0
 # end mass values.
 initial = True
 found = False
@@ -108,10 +108,10 @@ def start_socket(host, port,script_rosbag,name_rosbag,start_time,dpath_logs):
         if data == '':
             raise RuntimeError("socket connection broken") 
         if data != 'killall':
-            print("DATA RECEIVED")
-            print(data)
+            # print("DATA RECEIVED")
+            print("Received " + data + " seconds")
             # start after 2 seconds settling time
-            if(data == 'counter: 20'):
+            if(data == 'counter value: 2'):
                 print("Starting rosbag record: " + name_rosbag)
                 session = start_process(['/bin/bash',script_rosbag,name_rosbag],
                                         'rosbag_record',start_time,dpath_logs) 
@@ -201,7 +201,7 @@ if __name__ == '__main__':
 
     while initial_value <= final_value:
         current_mass =str(initial_value)
-        print("current mass: ", current_mass)
+        print("\nUpdating URDF file; current mass: ", current_mass")
 
         file = fileinput.FileInput(filename, inplace=True, backup='.bak')
         for line in file:
@@ -225,7 +225,7 @@ if __name__ == '__main__':
 
         # Confirm that you found first instance of mass value:
         if found:
-            print("Found match!")
+            print("Found entry inside URDF fle")
             print(repr(my_digits[0]))
             found = False
 
@@ -242,7 +242,7 @@ if __name__ == '__main__':
     
 # When finished reinitialize to standard value:
 print("Writing defaults to URDF file")
-time.sleep(5)
+time.sleep(3)
 previous_str = '<mass value="' + previous_mass + '"/>'
 default_str = '<mass value="10.5"/>'
 file = fileinput.FileInput(filename, inplace=True, backup='.bak')
