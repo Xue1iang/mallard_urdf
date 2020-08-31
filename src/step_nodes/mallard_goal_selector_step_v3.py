@@ -138,13 +138,14 @@ def slam_callback(data, paramf):
             n_goals = 0
         elif(single_goal):
             #reached goal 0 - wait there for 10seconds to settle
-            if(counter <= 50 and n_goals == 1): 
+            counter_max = 100
+            if(counter <= counter_max and n_goals == 1): 
                 if(counter % 10 == 0): 
                     # s.send(b"counter value: " + str(counter/10))
                     print(  "Settling for 5 seconds,counter value: " + str(counter/10) + " seconds")
                 n_goals = 0 # decrement goals to maitain the position
                 counter += 1
-            elif(counter > 50 and n_goals == 1):
+            elif(counter > counter_max and n_goals == 1):
                 print("Executing step")
                 n_goals = 1
             
