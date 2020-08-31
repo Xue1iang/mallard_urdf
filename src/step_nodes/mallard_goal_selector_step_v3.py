@@ -32,8 +32,8 @@ qp = [0, 0, 0, 0]
 psides = 0
 
 # execute back and forth motion between two goals
-back_and_forth = True
-single_goal = False
+back_and_forth = False
+single_goal = True
 counter = 0
 
 # stripe parameters 
@@ -55,7 +55,7 @@ goal_array = kgstripes.stripes(sd, gap, x1, x2, y1, y2, psi)
 goal_array = np.array([])
 
 # control parameters
-param = dict(vel=0.1, psivel=0.2, goal_tol=0.05, goal_tol_psi=0.1,  nv=4, t_ramp=5)
+param = dict(vel=0.1, psivel=0.2, goal_tol=0.1, goal_tol_psi=0.1,  nv=4, t_ramp=5)
 
 dtv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
 dxv = coll.deque([1e-5, 1e-5], maxlen=param['nv'])
@@ -133,19 +133,32 @@ def slam_callback(data, paramf):
         n_goals = n_goals + 1
         # --------------------------------------
         # to go back nad forth between two goals
-        if(n_goals > 1 and back_and_forth):
+        # print("n_goals: ",n_goals, " counter: ", counter)
+        if(back_and_forth):
             n_goals = 0
         elif(single_goal):
-            if(counter <= 50 and n_goals == 1): #reached goal 0 - wait there for 10seconds
+            #reached goal 0 - wait there for 10seconds to settle
+            if(counter <= 50 and n_goals == 1): 
                 if(counter % 10 == 0): 
                     # s.send(b"counter value: " + str(counter/10))
                     print(  "Settling for 5 seconds,counter value: " + str(counter/10) + " seconds")
-                n_goals = 0
+                n_goals = 0 # decrement goals to maitain the position
                 counter += 1
+            elif(counter > 50 and n_goals == 1):
+                print("Executing step")
+                n_goals = 1
+            
+            elif(n_goals >= 2):
+                print("reached goal")
+                # stop and maitain position
+                n_goals = 2
+            else:
+                print("Incorrect goal number; n_goals: ",n_goals)
+
                 
-            else: # maitain the goal
-                if(n_goals == 2): 
-                    n_goals = 1
+            # else: # maitain the goal
+            #     if(n_goals == 2): 
+            #         n_goals = 1
                     # msg = "killall"
                     # msgLen = len(msg)
                     # while(totalsent < msgLen):
@@ -158,9 +171,9 @@ def slam_callback(data, paramf):
                     #     print("GOAL REACHED")
                     #     print("killing connection to goal_selector")
                     # s.close()
-                    print("Goal reached!")
-                n_goals = 1
-                counter = 0
+                #     print("Goal reached! n_goals: ",n_goals)
+                # n_goals = 1
+                # counter = 0
                 # print("n_goals: " + str(n_goals))
                 
                 
@@ -228,9 +241,12 @@ def slam_callback(data, paramf):
                         print('final goal met - holding position')
 
     #  --------- Publish goals ---------
+    goal_number = n_goals
+
+    print("n_goals to send: ", goal_number)
     # publish goal array
     array = [goals_received, xdes,ydes,psides[2],\
-             xveldes,yveldes,psiveldes,ax,ay]
+             xveldes,yveldes,psiveldes,ax,ay,goal_number]
     data_to_send = Float64MultiArray(data = array)
     pub_goal.publish(data_to_send)
 
