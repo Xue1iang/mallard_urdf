@@ -11,15 +11,15 @@ from subprocess import Popen
 # variables required for write_to_urdf.py script:
 filename = 'mallard_main_test.xacro'
 # mass values: init,final and step:
-initial_value = 10.0
-final_value = 12.00
-step_value = 1.0
+initial_value = 1
+final_value = 2
+step_value = 1
 # end mass values.
 initial = True
 found = False
-previous_mass = '0.0' #initialize
-string_1 = '<mass value="'
-string_2 = '"/>'
+previous_damping = '0' #initialize
+string_1 = '<damping xyz="'
+string_2 = 'type="linear" />'
 
 
 def run(cmd, stdout, stderr):
@@ -200,27 +200,34 @@ if __name__ == '__main__':
     # name_rosbag="test_name"
     # main(args,name_rosbag)
 
+    const_str_1 = '<damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>'
+    const_str_2 = '<damping xyz="0 0 0" rpy="0 0 0"       type="quadratic"/>'
+
     while initial_value <= final_value:
-        current_mass =str(initial_value)
-        print("\nUpdating URDF file; current mass: ", current_mass)
+        current_damping =str(initial_value)
+        print("\nUpdating URDF file; current damping: ", current_damping)
 
         file = fileinput.FileInput(filename, inplace=True, backup='.bak')
         for line in file:
             line = line.rstrip()  
-            # find '<mass value=' and extract digits; executes once only:
+            # find initial value and extract digits; executes once only:
             if (string_1 in line) and (string_2 in line) and (initial == True):
                 # [int(s) for s in line.split() if s.isdigit()]
                 # my_digits = s
                 my_digits = re.findall(r"[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?",line)
-                previous_mass = my_digits[0]
+                previous_damping = my_digits[0]
 
                 found = True
                 initial = False
+            if(const_str_1 in line):
+                print(line.replace(const_str_1,const_str_2))
 
+            previous_str = '<damping xyz="' + previous_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
+            current_str = '<damping xyz="' + current_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
 
-            previous_str = '<mass value="' + previous_mass + '"/>'
-            current_str = '<mass value="' + current_mass + '"/>'
+            # This is where line replacement happens:
             print(line.replace(previous_str,current_str)) 
+         
     
         file.close()
 
@@ -228,24 +235,25 @@ if __name__ == '__main__':
         if found:
             print("Found entry inside URDF fle")
             print(repr(my_digits[0]))
+            print("List of my_digits: ", my_digits)
             found = False
 
         # run start_gazebo_mallard.py...
-        name_rosbag="mass_value=" + current_mass
+        name_rosbag="damping_value=" + current_damping
         main(args,name_rosbag)
         # delay to allow gazebo to shutdown:
         time.sleep(5)
 
         # update 
-        previous_mass = current_mass
+        previous_damping = current_damping
         initial_value += step_value
 
     
 # When finished reinitialize to standard value:
 print("Writing defaults to URDF file")
 time.sleep(3)
-previous_str = '<mass value="' + previous_mass + '"/>'
-default_str = '<mass value="10.5"/>'
+previous_str = '<mass value="' + previous_damping + '"/>'
+default_str = ' <damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
 file = fileinput.FileInput(filename, inplace=True, backup='.bak')
 for line in file:
     line = line.rstrip('\r\n')  

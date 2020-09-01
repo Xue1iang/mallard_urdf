@@ -75,6 +75,8 @@
           <!-- type = "linear" sets linear drag, lack of type sets quadratic drag  -->
           <!-- based on https://github.com/freefloating-gazebo; src/hydro_link.cpp and hydro_model_parser.cpp -->
           <damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />
+          <damping xyz="0 0 0" rpy="0 0 0"       type="quadratic"/>
+          <damping xyz="0 0 0" rpy="0 0 0"       type="quadratic"/>
           <damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>
       </buoyancy>
   </link>
