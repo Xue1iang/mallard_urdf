@@ -41,27 +41,10 @@ goal_met     = False
 goal_number = 0
 step_counter = 0
 loop_period = 0.1
-step_seconds = 1 # step interval in seconds
+step_seconds = 2 # step interval in seconds
 step_ctrl_input = 0
-step_range = 1
+step_range = 2.78
 
-# model based control variables:
-m  = 10.5 #Mallard's mass
-bx  = 0.859 # sum of thruster coeffs 
-r1_x = 1.435 # linear coeff
-r2_x = 19.262 # quadratic coeff.
-
-by = 0.86
-r1_y =0.552
-r2_y = 16.3
-# get coeefs. divided by b:
-Mx = m/bx
-R1_x = r1_x/bx
-R2_x = r2_x/bx
-
-My = m/by
-R1_y = r1_y/by
-R2_y = r2_y/by
 
 # simulation variables:
 a_sim=1.0556
@@ -171,10 +154,10 @@ def control_callback(event):
                 # step_number = step_seconds/loop_period
             else:
                 step_counter += 1
-            print("Goal number: ",goal_number)
+            # print("Goal number: ",goal_number)
             print("Now the step_seconds: ",step_seconds,"|| step input: ", step_ctrl_input)
         else:
-            print("Goal number: ", goal_number)
+            print("Goal reached; goal number: ", goal_number)
 
         # ----- control -----        
         x_global_ctrl   = control.proportional(x, x_goal, x_vel, x_vel_goal, param['kp'], param['kd'], param['lim'])
@@ -194,6 +177,7 @@ def control_callback(event):
             x_body_ctrl = 0
             y_body_ctrl = 0
             psi_global_ctrl = 0
+            #  maitain position at goal one
             print("Finished! Mallard is idling.")
         # test
         print("Step Input: ", step_ctrl_input)
