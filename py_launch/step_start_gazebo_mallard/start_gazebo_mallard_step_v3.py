@@ -11,8 +11,8 @@ from subprocess import Popen
 # variables required for write_to_urdf.py script:
 filename = '../../urdf/mallard_main.xacro'
 # mass values: init,final and step:
-initial_value = 0
-final_value = 5
+initial_value = 2
+final_value = 3
 step_value = 1
 # end mass values.
 initial = True
@@ -89,7 +89,7 @@ def start_process(cmd, typ, start_time, dpath_logs):
     -------
     A subprocess.Popen instance.
     """
-    print('Starting', typ.upper())
+    print('Starting ' + str(typ.upper()))
     stdout, stderr = get_stdout_stderr(typ, start_time, dpath_logs)
     with open(stdout, 'wb') as out, open(stderr, 'wb') as err:
         return run(cmd, stdout=out, stderr=err)
@@ -102,7 +102,7 @@ def start_socket(host, port,script_rosbag,name_rosbag,start_time,dpath_logs):
     s.bind((host, port))
     s.listen(1)
     clientsocket, address = s.accept()
-    print('Connected by', address)
+    print('Socket connected by' + str(address))
     while True:
         data = clientsocket.recv(1024)
 
@@ -113,7 +113,7 @@ def start_socket(host, port,script_rosbag,name_rosbag,start_time,dpath_logs):
             print("Received " + data + " seconds")
             # start after 2 seconds settling time
             if(data == 'counter value: 2'):
-                print("Starting rosbag record: " + name_rosbag)
+                print(" --- Rosbag name: " + name_rosbag)
                 session = start_process(['/bin/bash',script_rosbag,name_rosbag],
                                         'rosbag_record',start_time,dpath_logs) 
         else:
@@ -142,8 +142,8 @@ def main(args,name_rosbag):
                                'mallard_launchfile', start_time,dpath_logs)   
                       
     # print pids in case something goes wrong
-    print('PGID GAZEBO LAUNCH: ', os.getpgid(session_gazebo.pid))
-    print('PGID MALLARD LAUNCH: ', os.getpgid(session_mallard.pid))
+    print('PGID GAZEBO LAUNCH: ' + str(os.getpgid(session_gazebo.pid)))
+    print('PGID MALLARD LAUNCH: ' + str(os.getpgid(session_mallard.pid)))
     # print('PGID ROSBAG RECORD: ', os.getpgid(session_rosbag.pid))
 
     # Needs this to know when Mallard reaches final goal
@@ -205,7 +205,7 @@ if __name__ == '__main__':
 
     while initial_value <= final_value:
         current_damping =str(initial_value)
-        print("\nUpdating URDF file; current damping: ", current_damping)
+        print("\n --- Updating URDF file; current damping: "  + str(current_damping))
 
         file = fileinput.FileInput(filename, inplace=True, backup='.bak')
         for line in file:
@@ -253,7 +253,7 @@ if __name__ == '__main__':
 # When finished reinitialize to standard value:
 print("Writing defaults to URDF file")
 time.sleep(3)
-previous_str = '<mass value="' + previous_damping + '"/>'
+previous_str = '<damping xyz="' + previous_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
 default_str = ' <damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
 file = fileinput.FileInput(filename, inplace=True, backup='.bak')
 for line in file:
@@ -261,4 +261,4 @@ for line in file:
     print(line.replace(previous_str,default_str))
 file.close()
 
-print("Default mass: ", default_str)
+print("Default damping: " + str(default_str))

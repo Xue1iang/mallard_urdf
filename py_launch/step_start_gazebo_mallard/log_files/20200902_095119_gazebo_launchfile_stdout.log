@@ -1,0 +1,111 @@
+Parsing hydro model from namespace /mallard
+[INFO] [1599036682.470986, 0.000000]: Loading model XML from ros parameter robot_description
+[INFO] [1599036682.477258, 0.000000]: Waiting for service /gazebo/spawn_urdf_model
+[INFO] [1599036683.083124, 0.000000]: Calling service /gazebo/spawn_urdf_model
+[INFO] [1599036683.540279, 0.251000]: Spawn status: SpawnModel: Successfully spawned entity
+[0m[ INFO] [1599036681.726687182]: /mallard: adding x_thr_left as a steering thruster[0m
+[0m[ INFO] [1599036681.727347762]: /mallard: adding x_thr_right as a steering thruster[0m
+[0m[ INFO] [1599036681.727358380]: /mallard: adding y_thr_left as a steering thruster[0m
+[0m[ INFO] [1599036681.727365084]: /mallard: adding y_thr_right as a steering thruster[0m
+[0m[ INFO] [1599036681.727376940]: /mallard: adding thr4 as a fixed thruster[0m
+[0m[ INFO] [1599036681.728009150]: Found linear linear damping[0m
+[0m[ INFO] [1599036681.728023410]: Found linear angular drag[0m
+[0m[ INFO] [1599036681.728030213]: Found quadratic linear drag[0m
+[0m[ INFO] [1599036681.728036150]: Found quadratic angular damping[0m
+[0m[ INFO] [1599036681.868567252]: Init PID control for /mallard: 0 controlled axes (position control), 4 joints (position control)[0m
+[0m[ INFO] [1599036682.221725510]: Finished loading Gazebo ROS API Plugin.[0m
+[0m[ INFO] [1599036682.222918555]: waitForService: Service [/gazebo/set_physics_properties] has not been advertised, waiting...[0m
+[0m[ INFO] [1599036682.999392095]: waitForService: Service [/gazebo/set_physics_properties] is now available.[0m
+[0m[ INFO] [1599036683.021581244]: Loading freefloating_fluid plugin[0m
+[0m[ INFO] [1599036683.024599497]: Physics dynamic reconfigure ready.[0m
+[0m[ INFO] [1599036683.025638320]: Loaded freefloating_fluid plugin.[0m
+[0m[ INFO] [1599036683.553993998, 0.251000000]: Laser Plugin: Using the 'robotNamespace' param: '/'[0m
+[0m[ INFO] [1599036683.554045166, 0.251000000]: Starting Laser Plugin (ns = /)[0m
+[0m[ INFO] [1599036683.555219054, 0.251000000]: Laser Plugin (ns = /)  <tf_prefix_>, set to ""[0m
+[0m[ INFO] [1599036683.694945072, 0.251000000]: mallard: adding x_thr_left as a steering thruster[0m
+[0m[ INFO] [1599036683.694982614, 0.251000000]: mallard: adding x_thr_right as a steering thruster[0m
+[0m[ INFO] [1599036683.695001590, 0.251000000]: mallard: adding y_thr_left as a steering thruster[0m
+[0m[ INFO] [1599036683.695018125, 0.251000000]: mallard: adding y_thr_right as a steering thruster[0m
+[0m[ INFO] [1599036683.695044397, 0.251000000]: mallard: adding thr4 as a fixed thruster[0m
+[0m[ INFO] [1599036683.700076725, 0.251000000]: mallard: Started FreeFloating Control Plugin.[0m
+[0m[ INFO] [1599036683.700176583, 0.251000000]: Parsing hydro for model 'mallard'...[0m
+[0m[ INFO] [1599036683.703151745, 0.252000000]: Found linear linear damping[0m
+[0m[ INFO] [1599036683.703182825, 0.252000000]: Found linear angular drag[0m
+[0m[ INFO] [1599036683.703209378, 0.252000000]: Found quadratic linear drag[0m
+[0m[ INFO] [1599036683.703228493, 0.252000000]: Found quadratic angular damping[0m
+[0m[ INFO] [1599036683.703452796, 0.252000000]: Added 5 buoy links from mallard[0m
+... logging to /home/konrad/.ros/log/788f688a-ecf9-11ea-8c3f-a86daa78d7cd/roslaunch-ThinkPad-3935.log
+Checking log directory for disk usage. This may take a while.
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is <1GB.
+]2;/home/konrad/ROS/workspaces/ros_gazebo_ws/src/mallard_urdf/launch/mallard_gazebo.launch
+[1mstarted roslaunch server http://localhost:36453/[0m
+
+SUMMARY
+========
+
+PARAMETERS
+ * /gazebo/enable_ros_network: True
+ * /mallard/controllers/config/body/cascaded_position: False
+ * /mallard/controllers/config/body/dynamic_reconfigure: True
+ * /mallard/controllers/config/joints/cascaded_position: False
+ * /mallard/controllers/config/joints/dynamic_reconfigure: True
+ * /mallard/controllers/x_thr_left/position/d: 0.5
+ * /mallard/controllers/x_thr_left/position/i: 0.1
+ * /mallard/controllers/x_thr_left/position/p: 1
+ * /mallard/controllers/x_thr_left/velocity/d: 0.0
+ * /mallard/controllers/x_thr_left/velocity/i: 1
+ * /mallard/controllers/x_thr_left/velocity/p: 20
+ * /mallard/controllers/x_thr_right/position/d: 0.5
+ * /mallard/controllers/x_thr_right/position/i: 0.1
+ * /mallard/controllers/x_thr_right/position/p: 1
+ * /mallard/controllers/x_thr_right/velocity/d: 0.0
+ * /mallard/controllers/x_thr_right/velocity/i: 1
+ * /mallard/controllers/x_thr_right/velocity/p: 20
+ * /mallard/controllers/y_thr_left/position/d: 0.5
+ * /mallard/controllers/y_thr_left/position/i: 0.1
+ * /mallard/controllers/y_thr_left/position/p: 1
+ * /mallard/controllers/y_thr_left/velocity/d: 0.0
+ * /mallard/controllers/y_thr_left/velocity/i: 1
+ * /mallard/controllers/y_thr_left/velocity/p: 20
+ * /mallard/controllers/y_thr_right/position/d: 0.5
+ * /mallard/controllers/y_thr_right/position/i: 0.1
+ * /mallard/controllers/y_thr_right/position/p: 1
+ * /mallard/controllers/y_thr_right/velocity/d: 0.0
+ * /mallard/controllers/y_thr_right/velocity/i: 1
+ * /mallard/controllers/y_thr_right/velocity/p: 20
+ * /mallard/robot_description: <?xml version="1....
+ * /mallard/thrusters/robot_description: <?xml version="1....
+ * /rosdistro: melodic
+ * /rosversion: 1.14.9
+ * /use_sim_time: True
+
+NODES
+  /
+    gazebo (gazebo_ros/gzserver)
+  /mallard/
+    pid_control (freefloating_gazebo/pid_control)
+    robot_state_publisher (robot_state_publisher/robot_state_publisher)
+    spawner (gazebo_ros/spawn_model)
+
+auto-starting new master
+[1mprocess[master]: started with pid [3955][0m
+[1mROS_MASTER_URI=http://localhost:11311[0m
+]2;/home/konrad/ROS/workspaces/ros_gazebo_ws/src/mallard_urdf/launch/mallard_gazebo.launch http://localhost:11311
+[1msetting /run_id to 788f688a-ecf9-11ea-8c3f-a86daa78d7cd[0m
+[1mprocess[rosout-1]: started with pid [3966][0m
+started core service [/rosout]
+[1mprocess[gazebo-2]: started with pid [3969][0m
+[1mprocess[mallard/spawner-3]: started with pid [3974][0m
+[1mprocess[mallard/pid_control-4]: started with pid [3979][0m
+[1mprocess[mallard/robot_state_publisher-5]: started with pid [3980][0m
+[1m[mallard/spawner-3] process has finished cleanly
+log file: /home/konrad/.ros/log/788f688a-ecf9-11ea-8c3f-a86daa78d7cd/mallard-spawner-3*.log[0m
+[mallard/robot_state_publisher-5] killing on exit
+[gazebo-2] killing on exit
+[mallard/pid_control-4] killing on exit
+[rosout-1] killing on exit
+[master] killing on exit
+shutting down processing monitor...
+... shutting down processing monitor complete
+[1mdone[0m

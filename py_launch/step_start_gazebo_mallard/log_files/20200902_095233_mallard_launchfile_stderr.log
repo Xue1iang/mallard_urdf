@@ -1,0 +1,16 @@
+[33m[ WARN] [1599036760.519619350, 4.709000000]: Marker 'boundaryLines/0': scale.y and scale.z of LINE_LIST or LINE_STRIP are ignored.[0m
+[33m[ WARN] [1599036760.525915915, 4.715000000]: Marker 'pathLines/10': scale.y and scale.z of LINE_LIST or LINE_STRIP are ignored.[0m
+Exception in thread Thread-4:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/threading.py", line 801, in __bootstrap_inner
+    self.run()
+  File "/opt/ros/melodic/lib/python2.7/dist-packages/rospy/timer.py", line 234, in run
+    self._callback(TimerEvent(last_expected, last_real, current_expected, current_real, last_duration))
+  File "/home/konrad/ROS/workspaces/ros_gazebo_ws/src/mallard_urdf/src/step_nodes/mallard_step_controller_v3.py", line 198, in control_callback
+    pub_velocity.publish(thruster_ctrl_msg())
+  File "/opt/ros/melodic/lib/python2.7/dist-packages/rospy/topics.py", line 882, in publish
+    self.impl.publish(data)
+  File "/opt/ros/melodic/lib/python2.7/dist-packages/rospy/topics.py", line 1041, in publish
+    raise ROSException("publish() to a closed topic")
+ROSException: publish() to a closed topic
+
