@@ -59,7 +59,7 @@
       <!-- chassis physics -->
       <inertial>
         <origin xyz="0 0 -0.019" rpy="0 0 0"/>
-        <mass value="10.0"/>
+        <mass value="8.0"/>
         <inertia ixx="0.17" ixy="0.0" ixz="0.0" iyy="0.25" iyz="0.0" izz="0.40"/>
       </inertial>
 
@@ -74,7 +74,7 @@
           <!-- IMPORTANT for drag! set xyz for linear position and rpy for angualar orientation-->
           <!-- type = "linear" sets linear drag, lack of type sets quadratic drag  -->
           <!-- based on https://github.com/freefloating-gazebo; src/hydro_link.cpp and hydro_model_parser.cpp -->
-          <damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />
+          <damping xyz="5 1 5"    rpy="0.2 0.2 0.1" type="linear" />
           <damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>
       </buoyancy>
   </link>

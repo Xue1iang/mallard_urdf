@@ -9,10 +9,10 @@ import subprocess
 from subprocess import Popen
 
 # variables required for write_to_urdf.py script:
-filename = 'mallard_main_test.xacro'
+filename = '../../urdf/mallard_main.xacro'
 # mass values: init,final and step:
-initial_value = 1
-final_value = 2
+initial_value = 0
+final_value = 5
 step_value = 1
 # end mass values.
 initial = True
@@ -219,8 +219,9 @@ if __name__ == '__main__':
 
                 found = True
                 initial = False
-            if(const_str_1 in line):
-                print(line.replace(const_str_1,const_str_2))
+            # if(const_str_1 in line):
+            #     print(line.replace(const_str_1,const_str_2))
+            #     continue #skip rest of the loop
 
             previous_str = '<damping xyz="' + previous_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
             current_str = '<damping xyz="' + current_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
