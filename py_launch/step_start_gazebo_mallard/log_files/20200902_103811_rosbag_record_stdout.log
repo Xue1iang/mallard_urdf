@@ -1,4 +1,0 @@
-[0m[ INFO] [1599039510.571969824]: Subscribing to /gazebo/model_states[0m
-[0m[ INFO] [1599039510.574388158]: Subscribing to /mallard/goals[0m
-[0m[ INFO] [1599039510.576765715]: Subscribing to /mallard/thruster_command[0m
-[0m[ INFO] [1599039510.821511306, 16.314000000]: Recording to 'damping_value=3.bag'.[0m

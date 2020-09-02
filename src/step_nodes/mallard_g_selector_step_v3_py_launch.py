@@ -35,6 +35,7 @@ psides = 0
 back_and_forth = False
 single_goal = True
 counter = 0
+main_counter = 0
 
 # stripe parameters 
 gap = 0.2
@@ -105,7 +106,7 @@ def slam_callback(data, paramf):
     global dtv, dxv, dyv, tp, xp, yp, qp, ed
     global flag_first, flag_goal_met, flag_end, n_safe, n_goals, goals_received
     global x_goal, y_goal, q_goal, t_goal, t_goal_psi, x0, y0, q0, t0, goal_array,psides
-    global back_and_forth,single_goal,counter
+    global back_and_forth,single_goal,counter, main_counter
     global s, totalsent #socket variable
      
 
@@ -138,7 +139,8 @@ def slam_callback(data, paramf):
             n_goals = 0
         elif(single_goal):
             #reached goal 0 - wait there for 10seconds to settle
-            counter_max = 150
+            counter_max = 150 # this topic is sampled at 15Hz, thus count value: 150
+            
             if(counter <= counter_max and n_goals == 1): 
                 if(counter % 10 == 0): 
                     s.send(b"counter value: " + str(counter/10))
@@ -162,15 +164,36 @@ def slam_callback(data, paramf):
                     print("killing connection to goal_selector")
                 s.close()
                 print("Goal reached! n_goals: ",n_goals)
-                counter = 0
                 print("n_goals: " + str(n_goals))
-            else:
-                print("Incorrect goal number; n_goals: ",n_goals)
+                counter = 0
                 
         # --------------------------------------
         x_goal = goal_array[n_goals, 0]
         y_goal = goal_array[n_goals, 1]
         q_goal = tft.quaternion_from_euler(0, 0, goal_array[n_goals, 2])
+
+    # Timeout error procedure
+    # time_out = 900 # this count is about 60 seconds
+    time_out = 900
+    # Before killall signalsend a message:
+    if(main_counter == time_out):
+        s.send(b" ***** Error time out *****")
+    # This will execute in ea next loop:
+    if(main_counter > time_out):    
+        print("Experiment times out after: " + str(time_out*0.0667) + " seconds ")
+        msg = "killall"
+        msgLen = len(msg)
+        while(totalsent < msgLen):
+            # totalsent is global so this will execute only once
+            # avoiding sending msg to closed (server) socket.
+            sent = s.send(msg[totalsent:])
+            if sent == 0:
+                raise RuntimeError("Socket connection broken")
+            totalsent += sent
+            print("ERROR - EXPERIMENT TIME OUT")
+            print("killing connection to goal_selector")
+        s.close()
+    main_counter += 1
         
          
 

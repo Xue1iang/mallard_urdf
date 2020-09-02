@@ -11,8 +11,8 @@ from subprocess import Popen
 # variables required for write_to_urdf.py script:
 filename = '../../urdf/mallard_main.xacro'
 # mass values: init,final and step:
-initial_value = 2
-final_value = 3
+initial_value = 0
+final_value = 10
 step_value = 1
 # end mass values.
 initial = True
@@ -20,6 +20,8 @@ found = False
 previous_damping = '0' #initialize
 string_1 = '<damping xyz="'
 string_2 = 'type="linear" />'
+
+rosbag_error = ''
 
 
 def run(cmd, stdout, stderr):
@@ -109,7 +111,6 @@ def start_socket(host, port,script_rosbag,name_rosbag,start_time,dpath_logs):
         if data == '':
             raise RuntimeError("socket connection broken") 
         if data != 'killall':
-            # print("DATA RECEIVED")
             print("Received " + data + " seconds")
             # start after 2 seconds settling time
             if(data == 'counter value: 2'):
@@ -120,7 +121,7 @@ def start_socket(host, port,script_rosbag,name_rosbag,start_time,dpath_logs):
             # Send the signal to all the process groups
             print('\nReceived killall signal.')
             break
-
+    #  what if terminates before start_process, then there is no session
     return session
 
 def main(args,name_rosbag):
@@ -235,8 +236,8 @@ if __name__ == '__main__':
         # Confirm that you found first instance of mass value:
         if found:
             print("Found entry inside URDF fle")
-            print(repr(my_digits[0]))
-            print("List of my_digits: ", my_digits)
+            # print(repr(my_digits[0]))
+            # print("List of my_digits: ", my_digits)
             found = False
 
         # run start_gazebo_mallard.py...
