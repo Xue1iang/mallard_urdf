@@ -25,8 +25,7 @@ def write_to_csv(file_name,data):
     with open(file_name, 'w+') as csvfile:
         csvfile.truncate() #clear previous values
         filewriter = csv.writer(csvfile, delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        filewriter.writerow([str('TIME'),str('INPUT'),str('INPUT'),str('OUTPUT'),str('OUTPUT'),str('GOALS'),str('GOALS')])
-        filewriter.writerow([str('TIME'),str('thruster1'),str('thruster2'),str('position'),str('velocity'),str('des_pos'),str('des_vel')])
+        filewriter.writerow([str('TIME'),str('INPUT_thr1'),str('INPUT_thr2'),str('OUTPUT_pos'),str('OUTPUT_vel'),str('GOAL_pos'),str('GOAL_vel')])
 
         for i in data:
             filewriter.writerow([i[0],i[1],i[2],i[3],i[4],i[5],i[6]])
