@@ -41,7 +41,7 @@ goal_met     = False
 goal_number = 0
 step_counter = 0
 loop_period = 0.1
-step_seconds = 2 # step interval in seconds
+step_seconds = 3 # step interval in seconds
 step_ctrl_input = 0
 step_range = 2.78
 

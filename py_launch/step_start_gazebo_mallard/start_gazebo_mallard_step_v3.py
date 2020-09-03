@@ -241,7 +241,7 @@ if __name__ == '__main__':
             found = False
 
         # run start_gazebo_mallard.py...
-        name_rosbag="damping_value=" + current_damping
+        name_rosbag="damping_x_lin_" + current_damping + "_quad_20_step_3sec"
         main(args,name_rosbag)
         # delay to allow gazebo to shutdown:
         time.sleep(5)
