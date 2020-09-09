@@ -11,15 +11,15 @@ from subprocess import Popen
 # variables required for write_to_urdf.py script:
 filename = '../../urdf/mallard_main.xacro'
 # mass values: init,final and step:
-initial_value = 0
-final_value = 10
+initial_value = 25
+final_value = 35
 step_value = 1
 # end mass values.
 initial = True
 found = False
 previous_damping = '0' #initialize
 string_1 = '<damping xyz="'
-string_2 = 'type="linear" />'
+string_2 = 'type="quadratic"/>'
 
 rosbag_error = ''
 
@@ -201,8 +201,13 @@ if __name__ == '__main__':
     # name_rosbag="test_name"
     # main(args,name_rosbag)
 
-    const_str_1 = '<damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>'
-    const_str_2 = '<damping xyz="0 0 0" rpy="0 0 0"       type="quadratic"/>'
+    # To change quadratic for every n linear (never used):
+    # const_str_1 = '<damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>'
+    # const_str_2 = '<damping xyz="0 0 0" rpy="0 0 0"       type="quadratic"/>'
+
+    # original damping values:
+    # <damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />
+    # <damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>
 
     while initial_value <= final_value:
         current_damping =str(initial_value)
@@ -224,8 +229,12 @@ if __name__ == '__main__':
             #     print(line.replace(const_str_1,const_str_2))
             #     continue #skip rest of the loop
 
-            previous_str = '<damping xyz="' + previous_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
-            current_str = '<damping xyz="' + current_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
+            # To change LINEAR DAMPING coefficient
+            # previous_str = '<damping xyz="' + previous_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
+            # current_str = '<damping xyz="' + current_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
+            # To change QUADRATIC DAMPING coefficient
+            previous_str = '<damping xyz="' + previous_damping + ' 17 60" rpy="0 0 0"       type="quadratic"/>'
+            current_str = '<damping xyz="' + current_damping + ' 17 60" rpy="0 0 0"       type="quadratic"/>'
 
             # This is where line replacement happens:
             print(line.replace(previous_str,current_str)) 
@@ -241,7 +250,8 @@ if __name__ == '__main__':
             found = False
 
         # run start_gazebo_mallard.py...
-        name_rosbag="damping_x_lin_" + current_damping + "_quad_20_step_3sec"
+        # name_rosbag="damping_x_lin_" + current_damping + "_quad_20_step_3sec"
+        name_rosbag="damping_x_quad_" + current_damping + "_lin_0_step_3sec"
         main(args,name_rosbag)
         # delay to allow gazebo to shutdown:
         time.sleep(5)
@@ -254,8 +264,13 @@ if __name__ == '__main__':
 # When finished reinitialize to standard value:
 print("Writing defaults to URDF file")
 time.sleep(3)
-previous_str = '<damping xyz="' + previous_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
-default_str = ' <damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
+# To change LINEAR DAMPING coefficient
+# previous_str = '<damping xyz="' + previous_damping + ' 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
+# default_str = '<damping xyz="2 1 5"    rpy="0.2 0.2 0.1" type="linear" />'
+# To change QUADRATIC DAMPING coefficient
+previous_str = '<damping xyz="' + previous_damping + ' 17 60" rpy="0 0 0"       type="quadratic"/>'
+default_str = '<damping xyz="20 17 60" rpy="0 0 0"       type="quadratic"/>'
+
 file = fileinput.FileInput(filename, inplace=True, backup='.bak')
 for line in file:
     line = line.rstrip('\r\n')  
